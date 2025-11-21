@@ -1,50 +1,62 @@
-[gd_scene load_steps=2 format=3 uid="uid://cqow47bch5ocs"]
+[gd_scene load_steps=7 format=4 uid="uid://cqow47bch5ocs"]
 
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://scenes/proto_controller.tscn" id="1_o5qli"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0wfyh"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_sugp2"]
+sky_material = SubResource("ProceduralSkyMaterial_0wfyh")
+
+[sub_resource type="Environment" id="Environment_jyhfs"]
+background_mode = 2
+sky = SubResource("Sky_sugp2")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_o5qli"]
+_surfaces = [{
+"aabb": AABB(-30, -13, -0.5, 60, 26, 1),
+"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/"),
+"format": 34359738391,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 36,
+"vertex_data": PackedByteArray("AADwwQAAUMEAAAA/AADwwQAAUMEAAAC/AADwwQAAUEEAAAC/AADwQQAAUMEAAAC/AADwwQAAUMEAAAC/AADwwQAAUMEAAAA/AADwwQAAUEEAAAC/AADwwQAAUMEAAAC/AADwQQAAUMEAAAC/AADwwQAAUEEAAAC/AADwwQAAUEEAAAA/AADwwQAAUMEAAAA/AADwwQAAUMEAAAA/AADwwQAAUEEAAAA/AADwQQAAUEEAAAA/AADwQQAAUEEAAAA/AADwwQAAUEEAAAA/AADwwQAAUEEAAAC/AADwwQAAUMEAAAA/AADwQQAAUMEAAAA/AADwQQAAUMEAAAC/AADwQQAAUEEAAAA/AADwQQAAUMEAAAA/AADwwQAAUMEAAAA/AADwQQAAUMEAAAC/AADwQQAAUMEAAAA/AADwQQAAUEEAAAA/AADwQQAAUMEAAAC/AADwQQAAUEEAAAC/AADwwQAAUEEAAAC/AADwwQAAUEEAAAC/AADwQQAAUEEAAAC/AADwQQAAUEEAAAA/AADwQQAAUEEAAAA/AADwQQAAUEEAAAC/AADwQQAAUMEAAAC/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//////AAD/f/////8AAP9//////wAA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5/")
+}]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_0wfyh"]
+data = PackedVector3Array(-30, -13, 0.5, -30, -13, -0.5, -30, 13, -0.5, 30, -13, -0.5, -30, -13, -0.5, -30, -13, 0.5, -30, 13, -0.5, -30, -13, -0.5, 30, -13, -0.5, -30, 13, -0.5, -30, 13, 0.5, -30, -13, 0.5, -30, -13, 0.5, -30, 13, 0.5, 30, 13, 0.5, 30, 13, 0.5, -30, 13, 0.5, -30, 13, -0.5, -30, -13, 0.5, 30, -13, 0.5, 30, -13, -0.5, 30, 13, 0.5, 30, -13, 0.5, -30, -13, 0.5, 30, -13, -0.5, 30, -13, 0.5, 30, 13, 0.5, 30, -13, -0.5, 30, 13, -0.5, -30, 13, -0.5, -30, 13, -0.5, 30, 13, -0.5, 30, 13, 0.5, 30, 13, 0.5, 30, 13, -0.5, 30, -13, -0.5)
+
 [node name="Node3D" type="Node3D"]
+
+[node name="ProtoController" parent="." instance=ExtResource("1_o5qli")]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_jyhfs")
 
 [node name="floor" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.279297, -0.4995, 0)
 use_collision = true
+collision_layer = 3
+collision_mask = 3
 size = Vector3(96.3125, 0.001, 119.072266)
-
-[node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
-use_collision = true
-
-[node name="CSGBox3D2" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 3.5, 0)
-size = Vector3(1, 8, 16)
-
-[node name="CSGBox3D3" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8, 3.5, 13)
-size = Vector3(1, 9, 16)
-
-[node name="CSGBox3D5" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 3.5, -24)
-size = Vector3(1, 9, 46)
-
-[node name="CSGBox3D7" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 3.5, 18)
-size = Vector3(1, 9, 46)
-
-[node name="CSGBox3D4" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 3.5, -2)
-size = Vector3(1, 9, 43)
-
-[node name="CSGBox3D6" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23, 3.5, -2)
-size = Vector3(1, 9, 43)
-
-[node name="CSGBox3D" type="CSGBox3D" parent="CSGCombiner3D/CSGBox3D6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
-operation = 2
-size = Vector3(3, 5, 4)
-
-[node name="ProtoController" parent="." instance=ExtResource("1_o5qli")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-can_sprint = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 48.847298, 132)
 light_angular_distance = 12.06
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.5, 4)
+size = Vector3(60, 26, 1)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.5, 4)
+
+[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+mesh = SubResource("ArrayMesh_o5qli")
+skeleton = NodePath("../..")
+
+[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_0wfyh")

@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://5negh75idjb0"]
+
+[ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_7ftjh"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_7ftjh"]
+
+[node name="SourceController" type="CharacterBody3D"]
+script = ExtResource("1_7ftjh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_n4ypa")
+
+[node name="WorldModel" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WorldModel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_7ftjh")
+
+[node name="funnynose" type="CSGBox3D" parent="WorldModel"]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0, 1.1621585, -0.38499755)
+size = Vector3(1, 1, 2)
+
+[node name="Head" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.79, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+unique_name_in_owner = true
+cull_mask = 1048573
+fov = 90.0
+far = 25.0
+
+[node name="viewmodel" type="MeshInstance3D" parent="Head/Camera3D"]
+transform = Transform3D(0.15749998, 0, 0, 0, 0.14999998, 0, 0, 0, 1.686627, 0.20000002, -0.20000005, -0.7)
+mesh = SubResource("BoxMesh_7ftjh")

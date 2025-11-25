@@ -54,15 +54,44 @@ func _headbob_effect(delta : float):
 	)
 
 func wall_run():
-	self.velocity.y -= self.velocity.y/3.5
+	self.velocity.y = self.velocity.y/3.5
+	if Input.is_action_just_released('jump'):
+		print('yeahyeah')
+		self.velocity.y += 50
+
+func wall_rays(): # and feet
+	var space_state = get_world_3d().direct_space_state
+
+	var ray_distance = 1.5
+	var feet_distance = 50
+	var origin = self.position
+
+	var end_left = self.position.x - ray_distance
+	var end_right = self.position.x + ray_distance
+	var end_feet = self.position.y - feet_distance
+
+	var ray_left = PhysicsRayQueryParameters3D.create(origin, Vector3(end_left, self.position.y, self.position.z))
+	var ray_right = PhysicsRayQueryParameters3D.create(origin, Vector3(end_right, self.position.y, self.position.z))
+	var ray_feet =  PhysicsRayQueryParameters3D.create(origin, Vector3(self.position.x, end_feet, self.position.z))
+
+	var result_left = space_state.intersect_ray(ray_left)
+	var result_right = space_state.intersect_ray(ray_right)
+	var result_feet = space_state.intersect_ray(ray_feet)
+
+	return {
+		"left": result_left,
+		"right": result_right,
+		"feet": result_feet
+	}
 
 func get_move_speed() -> float:
 	return sprint_speed if Input.is_action_pressed('sprint') else walk_speed
 
 func _handle_air_physics(delta : float) -> void:
-	if is_on_wall() and Input.is_action_pressed('jump'):
-		wall_run()
-		return
+	if wall_rays() and not wall_rays().feet and Input.is_action_pressed('jump'):
+		if wall_rays().left or wall_rays().right:
+			wall_run()
+			return
 
 	self.velocity.y -= gravity * delta
 

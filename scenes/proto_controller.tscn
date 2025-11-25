@@ -40,6 +40,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
 [node name="Head" type="Node3D" parent="neck"]
 
 [node name="eyes" type="Node3D" parent="neck/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
 
 [node name="Camera3D" type="Camera3D" parent="neck/Head/eyes"]
 

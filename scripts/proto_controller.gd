@@ -53,7 +53,7 @@ func _input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	if is_on_wall():
-		velocity.y = velocity.y/3.5
+		velocity.y = velocity.y/2
 
 	if Input.is_action_pressed("crouch"):
 		current_speed = lerp(current_speed, crouching_speed, delta*lerp_speed)

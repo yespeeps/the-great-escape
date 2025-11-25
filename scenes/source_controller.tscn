@@ -1,12 +1,11 @@
 [gd_scene load_steps=5 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
+[ext_resource type="PackedScene" uid="uid://drb5srwc2oc6j" path="res://assets/hand.fbx" id="2_3pmoh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_7ftjh"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_7ftjh"]
 
 [node name="SourceController" type="CharacterBody3D"]
 script = ExtResource("1_7ftjh")
@@ -30,12 +29,11 @@ size = Vector3(1, 1, 2)
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.79, 0)
 
+[node name="hand" parent="Head" instance=ExtResource("2_3pmoh")]
+transform = Transform3D(-1.8030948e-07, -7.327472e-15, -4.125, -3.1599333, 2.651499, 1.3812507e-07, 2.651499, 3.1599333, -1.159007e-07, 0.3, -0.39, -0.6)
+
 [node name="Camera3D" type="Camera3D" parent="Head"]
 unique_name_in_owner = true
 cull_mask = 1048573
 fov = 90.0
 far = 25.0
-
-[node name="viewmodel" type="MeshInstance3D" parent="Head/Camera3D"]
-transform = Transform3D(0.15749998, 0, 0, 0, 0.14999998, 0, 0, 0, 1.686627, 0.20000002, -0.20000005, -0.7)
-mesh = SubResource("BoxMesh_7ftjh")

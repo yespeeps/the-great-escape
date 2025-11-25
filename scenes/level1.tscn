@@ -40,10 +40,6 @@ size = Vector3(2.3, 0.001, 4.6)
 transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, -2, 1.8499999, -6.55)
 size = Vector3(4, 0.001, 10)
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="."]
-transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 0.90000004, 2.8499997, -9.15)
-size = Vector3(6, 0.001, 12)
-
 [node name="SourceController" parent="." instance=ExtResource("1_g2h75")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
 
@@ -65,5 +61,15 @@ transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, -2, 
 shape = SubResource("ConcavePolygonShape3D_wwpf4")
 
 [node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+mesh = SubResource("ArrayMesh_m7ahb")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="."]
+transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 1, 1.8499998, -12.55)
+
+[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
+shape = SubResource("ConcavePolygonShape3D_wwpf4")
+
+[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="StaticBody3D2"]
 mesh = SubResource("ArrayMesh_m7ahb")
 skeleton = NodePath("../..")

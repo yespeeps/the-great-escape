@@ -27,6 +27,7 @@ var headbob_time = 0.0
 var wish_dir := Vector3.ZERO
 
 var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
+var wallrunning := false
 
 func _ready() -> void:
 	for child : VisualInstance3D in world_model.find_children('*', 'VisualInstance3D'):
@@ -53,13 +54,11 @@ func _headbob_effect(delta : float):
 		0
 	)
 
-func wall_run():
-	self.velocity.y = self.velocity.y/3.5
-	if Input.is_action_just_released('jump'):
-		print('yeahyeah')
-		self.velocity.y += 50
+func wall_run(wall_normal, delta):
+	wish_dir = -wall_normal * get_move_speed() * air_accel
+	self.velocity.y = 0
 
-func wall_rays(): # and feet
+func wall_rays(): 
 	var space_state = get_world_3d().direct_space_state
 
 	var ray_distance = 1.5
@@ -88,10 +87,12 @@ func get_move_speed() -> float:
 	return sprint_speed if Input.is_action_pressed('sprint') else walk_speed
 
 func _handle_air_physics(delta : float) -> void:
-	if wall_rays() and not wall_rays().feet and Input.is_action_pressed('jump'):
-		if wall_rays().left or wall_rays().right:
-			wall_run()
-			return
+	if wall_rays() and not wall_rays().feet and Input.is_action_pressed('jump') and self.velocity.y >= 0:
+		if wall_rays().left:
+			wall_run(wall_rays().left.normal, delta)
+		elif wall_rays().right:
+			wall_run(wall_rays().right.normal, delta)
+		return
 
 	self.velocity.y -= gravity * delta
 

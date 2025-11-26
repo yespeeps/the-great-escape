@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
-[ext_resource type="PackedScene" uid="uid://drb5srwc2oc6j" path="res://assets/hand.fbx" id="2_3pmoh"]
+[ext_resource type="PackedScene" uid="uid://domgonncpi8a3" path="res://assets/hand.tscn" id="2_3pmoh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
@@ -9,6 +9,19 @@
 
 [node name="SourceController" type="CharacterBody3D"]
 script = ExtResource("1_7ftjh")
+look_sens = null
+jump_velocity = null
+auto_bhop = null
+air_cap = null
+air_accel = null
+air_move_speed = null
+walk_speed = null
+sprint_speed = null
+ground_accel = null
+ground_decel = null
+ground_friction = null
+health = null
+max_health = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -21,19 +34,25 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_7ftjh")
 
-[node name="funnynose" type="CSGBox3D" parent="WorldModel"]
-transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0, 1.1621585, -0.38499755)
-size = Vector3(1, 1, 2)
+[node name="left" type="RayCast3D" parent="WorldModel"]
+transform = Transform3D(-4.371139e-08, 0.3, 0, -1, -1.3113417e-08, 0, 0, 0, 1, -0.5605272, 1.239296, 0)
+
+[node name="right" type="RayCast3D" parent="WorldModel"]
+transform = Transform3D(-4.371139e-08, -0.3, 0, 1, -1.3113417e-08, 0, 0, 0, 1, 0.5394729, 1.239296, 0)
 
 [node name="Head" type="Node3D" parent="."]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.79, 0)
-
-[node name="hand" parent="Head" instance=ExtResource("2_3pmoh")]
-transform = Transform3D(-1.8030948e-07, -7.327472e-15, -4.125, -3.1599333, 2.651499, 1.3812507e-07, 2.651499, 3.1599333, -1.159007e-07, 0.3, -0.39, -0.6)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
 unique_name_in_owner = true
 cull_mask = 1048573
 fov = 90.0
 far = 25.0
+
+[node name="hand" parent="Head/Camera3D" instance=ExtResource("2_3pmoh")]
+transform = Transform3D(-1.8599196e-07, 0, -4.255, -2.7350612, 3.259519, 1.1955332e-07, 3.259519, 2.7350612, -1.4247811e-07, 0.3, -0.4899999, -0.6)
+
+[node name="feet" type="Node3D" parent="."]
+
+[node name="RayCast3D" type="RayCast3D" parent="feet"]

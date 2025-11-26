@@ -9,19 +9,6 @@
 
 [node name="SourceController" type="CharacterBody3D"]
 script = ExtResource("1_7ftjh")
-look_sens = null
-jump_velocity = null
-auto_bhop = null
-air_cap = null
-air_accel = null
-air_move_speed = null
-walk_speed = null
-sprint_speed = null
-ground_accel = null
-ground_decel = null
-ground_friction = null
-health = null
-max_health = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -52,6 +39,7 @@ far = 25.0
 
 [node name="hand" parent="Head/Camera3D" instance=ExtResource("2_3pmoh")]
 transform = Transform3D(-1.8599196e-07, 0, -4.255, -2.7350612, 3.259519, 1.1955332e-07, 3.259519, 2.7350612, -1.4247811e-07, 0.3, -0.4899999, -0.6)
+visible = false
 
 [node name="feet" type="Node3D" parent="."]
 

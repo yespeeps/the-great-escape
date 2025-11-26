@@ -15,8 +15,8 @@ extends CharacterBody3D
 @export var air_accel := 800.0
 @export var air_move_speed := 500.0
 
-var walljumped : bool
-var wall_jump_distance := 3
+@export var wall_jump_up_force := 120
+@export var wall_jump_side_force := 60
 
 # Ground movement settings
 @export var walk_speed := 7
@@ -35,10 +35,26 @@ var wish_dir := Vector3.ZERO
 
 var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
 
+var ray_left : PhysicsRayQueryParameters3D
+var ray_right : PhysicsRayQueryParameters3D
+var ray_down : PhysicsRayQueryParameters3D
+
 func _ready() -> void:
 	for child : VisualInstance3D in world_model.find_children('*', 'VisualInstance3D'):
 		child.set_layer_mask_value(1, false)
 		child.set_layer_mask_value(2, true)
+
+	ray_left = PhysicsRayQueryParameters3D.new()
+	ray_right = PhysicsRayQueryParameters3D.new()
+	ray_down = PhysicsRayQueryParameters3D.new()
+
+	ray_left.collide_with_areas = true
+	ray_left.collide_with_bodies = true
+	ray_down.collide_with_bodies = true
+
+	ray_right.collide_with_areas = true
+	ray_right.collide_with_bodies = true
+	ray_down.collide_with_bodies = true
 				
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -63,39 +79,69 @@ func _headbob_effect(delta : float):
 func get_move_speed() -> float:
 	return sprint_speed if Input.is_action_pressed('sprint') else walk_speed
 
-func _wall_run(delta):
-	if Input.is_action_pressed('jump'):
-		walljumped = true
-		return walljumped
+func update_rays():
+	var origin = global_transform.origin
 
-	wish_dir = -get_wall_normal() * 10000 * delta
+	ray_left.from = origin
+	ray_left.to = origin + Vector3(-1, 0, 0)
+
+	ray_right.from = origin
+	ray_right.to = origin + Vector3(1, 0, 0)
+
+	ray_down.from = origin
+	ray_down.to = origin + Vector3(0, -2, 0)
+
+func get_collision_x_normal():
+	var space = get_world_3d().direct_space_state
+	update_rays()
+
+	var result_left = space.intersect_ray(ray_left)
+	var result_right = space.intersect_ray(ray_right)
+
+	if result_left:
+		return result_left.normal
+	elif result_right:
+		return result_right.normal
+	return null
+
+func get_collision_down():
+	var space = get_world_3d().direct_space_state
+	var result_down = space.intersect_ray(ray_down)
+
+	if result_down:
+		return result_down
+	else:
+		return null
+
+func _wall_run(delta):
+	print('wallrunned')
+	self.velocity += -get_collision_x_normal() * 2 * delta
 	self.velocity.y /= 2
-	print('yes')
 
 func _wall_jump(delta):
-	print(get_wall_normal())
-	wish_dir = get_wall_normal() * wall_jump_distance * 5000
+	var force_to_apply = self.global_transform.basis.y * wall_jump_up_force + get_collision_x_normal() * wall_jump_side_force
+	self.velocity += force_to_apply * delta
+	print('walljumped')
 	
-
-func _handle_air_physics(delta : float, space_state) -> void:
-	if is_on_wall() and walljumped == false:
-		_wall_run(delta)
-	else:
-		if walljumped:
-			walljumped = false
+func _handle_air_physics(delta : float) -> void:
+	if get_collision_x_normal() and not get_collision_down():
+		if Input.is_action_pressed('jump'):
 			_wall_jump(delta)
-		self.velocity.y -= gravity * delta
+		else:
+			_wall_run(delta)
 
-		var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
-		var capped_speed = min((air_move_speed * wish_dir).length(), air_cap)
+	self.velocity.y -= gravity * delta
+	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
+	var capped_speed = min((air_move_speed * wish_dir).length(), air_cap)
 
-		var add_speed_till_cap = capped_speed - cur_speed_in_wish_dir
-		if add_speed_till_cap > 0:
-			var accel_speed = air_accel * air_move_speed * delta
-			accel_speed = min(accel_speed, add_speed_till_cap)
-			self.velocity += accel_speed * wish_dir
+	var add_speed_till_cap = capped_speed - cur_speed_in_wish_dir
+	if add_speed_till_cap > 0:
+		var accel_speed = air_accel * air_move_speed * delta
+		accel_speed = min(accel_speed, add_speed_till_cap)
+		self.velocity += accel_speed * wish_dir
 
 func _handle_ground_physics(delta : float) -> void:
+	print("FUCKING FLOORING IT!!!")
 	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
 	var add_speed_till_cap = get_move_speed() - cur_speed_in_wish_dir
 	if add_speed_till_cap > 0:
@@ -123,7 +169,7 @@ func _physics_process(delta: float) -> void:
 			self.velocity.y += jump_velocity
 		_handle_ground_physics(delta)
 	else:
-		_handle_air_physics(delta, space_state)
+		_handle_air_physics(delta)
 
 	move_and_slide()
 

@@ -1,10 +1,11 @@
+#TODO: Add exiting wall state so walljumping is not interrupted, wallrun timer
 extends CharacterBody3D
 @onready var world_model = $WorldModel
 @onready var camera = $Head/Camera3D
 
-@onready var feet = $feet/RayCast3D
 @onready var right = $WorldModel/right
 @onready var left = $WorldModel/left
+@onready var exit_timer = $"Exit Timer"
 
 @export var look_sens : float = 0.006
 @export var jump_velocity := 6.0
@@ -15,15 +16,15 @@ extends CharacterBody3D
 @export var air_accel := 800.0
 @export var air_move_speed := 500.0
 
-@export var wall_jump_up_force := 120
-@export var wall_jump_side_force := 60
+@export var wall_jump_up_force := 700
+@export var wall_jump_side_force := 1200
 
 # Ground movement settings
 @export var walk_speed := 7
 @export var sprint_speed := 8.5
-@export var ground_accel := 14.0
-@export var ground_decel := 10.0
-@export var ground_friction := 6.0
+@export var ground_accel := 6.0
+@export var ground_decel := 3.0
+@export var ground_friction := 4.0
 
 @export var health := 100.0
 @export var max_health := 100.0
@@ -39,6 +40,10 @@ var ray_left : PhysicsRayQueryParameters3D
 var ray_right : PhysicsRayQueryParameters3D
 var ray_down : PhysicsRayQueryParameters3D
 
+var can_wall_action := true 
+var can_gravity : bool
+var wall_running : bool
+
 func _ready() -> void:
 	for child : VisualInstance3D in world_model.find_children('*', 'VisualInstance3D'):
 		child.set_layer_mask_value(1, false)
@@ -50,10 +55,11 @@ func _ready() -> void:
 
 	ray_left.collide_with_areas = true
 	ray_left.collide_with_bodies = true
-	ray_down.collide_with_bodies = true
 
 	ray_right.collide_with_areas = true
 	ray_right.collide_with_bodies = true
+
+	ray_down.collide_with_bodies = true
 	ray_down.collide_with_bodies = true
 				
 func _unhandled_input(event: InputEvent) -> void:
@@ -114,34 +120,37 @@ func get_collision_down():
 		return null
 
 func _wall_run(delta):
-	print('wallrunned')
 	self.velocity += -get_collision_x_normal() * 2 * delta
-	self.velocity.y /= 2
+	self.velocity.y -= gravity/2 * delta
 
 func _wall_jump(delta):
+	can_wall_action = false
+	exit_timer.start()
+
 	var force_to_apply = self.global_transform.basis.y * wall_jump_up_force + get_collision_x_normal() * wall_jump_side_force
 	self.velocity += force_to_apply * delta
-	print('walljumped')
-	
+
+func _on_exit_timer_timeout() -> void:
+	can_wall_action = true
+
 func _handle_air_physics(delta : float) -> void:
-	if get_collision_x_normal() and not get_collision_down():
-		if Input.is_action_pressed('jump'):
+	if get_collision_x_normal() and not get_collision_down() and can_wall_action:
+		if Input.is_action_just_pressed('jump'):
 			_wall_jump(delta)
 		else:
 			_wall_run(delta)
+	else:
+		self.velocity.y -= gravity * delta
+		var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
+		var capped_speed = min((air_move_speed * wish_dir).length(), air_cap)
 
-	self.velocity.y -= gravity * delta
-	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
-	var capped_speed = min((air_move_speed * wish_dir).length(), air_cap)
-
-	var add_speed_till_cap = capped_speed - cur_speed_in_wish_dir
-	if add_speed_till_cap > 0:
-		var accel_speed = air_accel * air_move_speed * delta
-		accel_speed = min(accel_speed, add_speed_till_cap)
-		self.velocity += accel_speed * wish_dir
+		var add_speed_till_cap = capped_speed - cur_speed_in_wish_dir
+		if add_speed_till_cap > 0:
+			var accel_speed = air_accel * air_move_speed * delta
+			accel_speed = min(accel_speed, add_speed_till_cap)
+			self.velocity += accel_speed * wish_dir
 
 func _handle_ground_physics(delta : float) -> void:
-	print("FUCKING FLOORING IT!!!")
 	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
 	var add_speed_till_cap = get_move_speed() - cur_speed_in_wish_dir
 	if add_speed_till_cap > 0:
@@ -177,4 +186,5 @@ func _physics_process(delta: float) -> void:
 
 	
 
-# func _process(delta: float) -> void:
+
+

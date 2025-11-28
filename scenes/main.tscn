@@ -1,6 +1,5 @@
-[gd_scene load_steps=6 format=3 uid="uid://cqow47bch5ocs"]
+[gd_scene load_steps=5 format=3 uid="uid://cqow47bch5ocs"]
 
-[ext_resource type="PackedScene" uid="uid://d0yro7c43kteh" path="res://scenes/wall.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://5negh75idjb0" path="res://scenes/source_controller.tscn" id="2_sugp2"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0wfyh"]
@@ -27,14 +26,18 @@ shadow_enabled = true
 
 [node name="SourceController" parent="." instance=ExtResource("2_sugp2")]
 
-[node name="StaticBody3D" parent="." instance=ExtResource("2_0wfyh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 2.5, -7)
-
-[node name="StaticBody3D2" parent="." instance=ExtResource("2_0wfyh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 2.5, -16)
-
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 transform = Transform3D(0.9, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, -0.5, -4)
 operation = 2
 use_collision = true
 size = Vector3(17, 1, 12)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.45, 2.1909778, -10.983431)
+use_collision = true
+size = Vector3(0.1, 4, 15)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.55, 2.1909778, -14.983431)
+use_collision = true
+size = Vector3(0.1, 4, 17)

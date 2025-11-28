@@ -1,7 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://5negh75idjb0"]
+[gd_scene load_steps=8 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
-[ext_resource type="PackedScene" uid="uid://domgonncpi8a3" path="res://assets/hand.tscn" id="2_3pmoh"]
+[ext_resource type="PackedScene" uid="uid://c2ooehocpil3i" path="res://assets/deagle.glb" id="2_jnw8r"]
+[ext_resource type="PackedScene" uid="uid://coy0gscoehudg" path="res://scenes/weapon_manager.tscn" id="2_p4b6d"]
+[ext_resource type="Script" uid="uid://5djlkwyw3q2" path="res://scripts/weapon_manager.gd" id="3_jnw8r"]
+[ext_resource type="Resource" uid="uid://7w1g7582fp4x" path="res://assets/deagle.tres" id="4_oiiwm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
@@ -37,10 +40,24 @@ cull_mask = 1048573
 fov = 90.0
 far = 25.0
 
-[node name="hand" parent="Head/Camera3D" instance=ExtResource("2_3pmoh")]
-transform = Transform3D(-1.8599196e-07, 0, -4.255, -2.7350612, 3.259519, 1.1955332e-07, 3.259519, 2.7350612, -1.4247811e-07, 0.3, -0.4899999, -0.6)
-visible = false
+[node name="RayCast3D" type="RayCast3D" parent="Head/Camera3D"]
+target_position = Vector3(0, 0, -999)
 
-[node name="feet" type="Node3D" parent="."]
+[node name="ViewModel" type="Node3D" parent="Head/Camera3D"]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
 
-[node name="RayCast3D" type="RayCast3D" parent="feet"]
+[node name="deagle" parent="Head/Camera3D/ViewModel" instance=ExtResource("2_jnw8r")]
+transform = Transform3D(-1.3331974e-08, 0, 0.305, 0, 0.305, 0, -0.305, 0, -1.3331974e-08, 0.30000004, -0.5000001, -1.0000001)
+
+[node name="Exit Timer" type="Timer" parent="."]
+wait_time = 0.3
+one_shot = true
+
+[node name="WeaponManager" parent="." node_paths=PackedStringArray("player", "bullet_raycast", "view_model_container") instance=ExtResource("2_p4b6d")]
+script = ExtResource("3_jnw8r")
+current_weapon = ExtResource("4_oiiwm")
+player = NodePath("..")
+bullet_raycast = NodePath("../Head/Camera3D/RayCast3D")
+view_model_container = NodePath("../Head/Camera3D/ViewModel")
+
+[connection signal="timeout" from="Exit Timer" to="." method="_on_exit_timer_timeout"]

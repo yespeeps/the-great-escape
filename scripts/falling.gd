@@ -1,25 +1,33 @@
 class_name Falling extends PlayerState
 var can_wallrun := true 
+var can_double_jump := true
 
 func enter(previous_state_path: String, data := {}) -> void:
 	if previous_state_path == WALLJUMPING:
 		can_wallrun = false
-		await get_tree().create_timer(1).timeout
+		await get_tree().create_timer(0.2).timeout
 		can_wallrun = true
+
+	if previous_state_path == DOUBLEJUMPING: 
+		can_double_jump = false
 
 func physics_update(delta: float) -> void:
 	if player.is_on_floor():
+		can_double_jump = true
 		finished.emit(RUNNING)
 
-	if player.get_collision_x_normal() and can_wallrun:
+	var normal = player.get_collision_x_normal()
+	var dot = 0.0
+	var angle_constraint
+
+	if normal != null:
+		dot = player.global_transform.basis.z.dot(normal)
+		angle_constraint = dot >= -0.5 and dot <= 0.5
+
+	if player.get_collision_x_normal() and can_wallrun and angle_constraint and not player.get_collision_down():
+		print(player.global_transform.basis.z.dot(player.get_collision_x_normal()))
 		finished.emit(WALLRUNNING)
+	elif Input.is_action_just_pressed('jump') and can_double_jump:
+		finished.emit(DOUBLEJUMPING)
 
-	player.velocity.y -= player.gravity * delta
-	var cur_speed_in_wish_dir = player.velocity.dot(player.wish_dir)
-	var capped_speed = min((player.air_move_speed * player.wish_dir).length(), player.air_cap)
-
-	var add_speed_till_cap = capped_speed - cur_speed_in_wish_dir
-	if add_speed_till_cap > 0:
-		var accel_speed = player.air_accel * player.air_move_speed * delta
-		accel_speed = min(accel_speed, add_speed_till_cap)
-		player.velocity += accel_speed * player.wish_dir
+	player._handle_air_physics(delta)

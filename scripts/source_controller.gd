@@ -2,6 +2,8 @@
 class_name Player extends CharacterBody3D
 @onready var world_model = $WorldModel
 @onready var camera = $Head/Camera3D
+@onready var standing_collider = $StandingCollider
+@onready var crouching_collider = $CrouchingCollider
 
 @onready var right = $WorldModel/right
 @onready var left = $WorldModel/left
@@ -9,7 +11,7 @@ class_name Player extends CharacterBody3D
 
 @export var look_sens : float = 0.006
 @export var jump_velocity := 6.0
-@export var auto_bhop := false
+@export var auto_bhop := true
 
 # Air movement settings. Need to tweak these to get the feeling dialed in.
 @export var air_cap := 0.85 # Can surf steeper ramps if this is higher, makes it easier to stick and bhop
@@ -18,7 +20,8 @@ class_name Player extends CharacterBody3D
 
 @export var wall_jump_up_force := 700
 @export var wall_jump_side_force := 1200
-@export var wall_run_boost := 2
+@export var wall_run_boost := 2.0
+@export var wall_run_side_speed := 7.0
 
 # Ground movement settings
 @export var walk_speed := 7
@@ -45,6 +48,7 @@ var ray_down : PhysicsRayQueryParameters3D
 var can_wall_action := true 
 var can_gravity : bool
 var wall_running : bool
+var crouching := false
 
 func _ready() -> void:
 	for child : VisualInstance3D in world_model.find_children('*', 'VisualInstance3D'):
@@ -91,13 +95,13 @@ func update_rays():
 	var origin = global_transform.origin
 
 	ray_left.from = origin
-	ray_left.to = origin + Vector3(-1, 0, 0)
+	ray_left.to = origin + Vector3(-0.6, 0, 0)
 
 	ray_right.from = origin
-	ray_right.to = origin + Vector3(1, 0, 0)
+	ray_right.to = origin + Vector3(0.6, 0, 0)
 
 	ray_down.from = origin
-	ray_down.to = origin + Vector3(0, -2, 0)
+	ray_down.to = origin + Vector3(0, -0.6, 0)
 
 func get_collision_x_normal():
 	var space = get_world_3d().direct_space_state
@@ -121,29 +125,53 @@ func get_collision_down():
 	else:
 		return null
 
-func _wall_run(delta):
-	self.velocity += -get_collision_x_normal() * 2 * delta
+func _handle_air_physics(delta : float) -> void:
+	self.velocity.y -= gravity * delta
+	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
+	var capped_speed = min((air_move_speed * wish_dir).length(), air_cap)
+
+	var add_speed_till_cap = capped_speed - cur_speed_in_wish_dir
+	if add_speed_till_cap > 0:
+		var accel_speed = air_accel * air_move_speed * delta
+		accel_speed = min(accel_speed, add_speed_till_cap)
+		self.velocity += accel_speed * wish_dir
+
+func _handle_wallrun_physics(delta : float) -> void:
 	self.velocity.y -= gravity/2 * delta
+	self.velocity.x += wish_dir.x * wall_run_side_speed * delta
 
-func _wall_jump(delta):
-	can_wall_action = false
-	exit_timer.start()
+func _handle_ground_physics(delta : float) -> void:
+	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
+	var add_speed_till_cap = get_move_speed() - cur_speed_in_wish_dir
+	if add_speed_till_cap > 0:
+		var accel_speed = ground_accel * get_move_speed() * delta
+		accel_speed = min(accel_speed, add_speed_till_cap)
+		self.velocity += accel_speed * wish_dir
 
-	var force_to_apply = self.global_transform.basis.y * wall_jump_up_force + get_collision_x_normal() * wall_jump_side_force
-	self.velocity += force_to_apply * delta
+	var control = max(self.velocity.length(), ground_decel)
+	var drop = control * ground_friction * delta
+	var new_speed = max(self.velocity.length() - drop, 0.0)
+	if self.velocity.length() > 0:
+		new_speed /= self.velocity.length()
+	self.velocity *= new_speed
 
 func _on_exit_timer_timeout() -> void:
 	can_wall_action = true
 
 func _physics_process(_delta: float) -> void:
-	var input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
-
+	input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
 	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
+
+	if Input.is_action_pressed("crouch"):
+		camera.position.y = -0.5
+		standing_collider.disabled = true
+		crouching_collider.disabled = false
+	else:
+		crouching_collider.disabled = true
+		standing_collider.disabled = false
+		camera.position.y = 0
 	move_and_slide()
 
 
 
 	
-
-
-

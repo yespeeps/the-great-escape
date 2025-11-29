@@ -6,6 +6,7 @@ const JUMPING = "Jumping"
 const FALLING = "Falling"
 const WALLRUNNING = "WallRunning"
 const WALLJUMPING = "WallJumping"
+const DOUBLEJUMPING = "DoubleJumping"
 
 var player: Player
 

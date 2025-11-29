@@ -66,4 +66,4 @@ crouch={
 
 common/physics_ticks_per_second=120
 3d/physics_engine="Jolt Physics"
-3d/default_gravity=15.0
+3d/default_gravity=19.478

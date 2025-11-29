@@ -1,5 +1,5 @@
 #TODO: Add exiting wall state so walljumping is not interrupted, wallrun timer
-extends CharacterBody3D
+class_name Player extends CharacterBody3D
 @onready var world_model = $WorldModel
 @onready var camera = $Head/Camera3D
 
@@ -133,53 +133,10 @@ func _wall_jump(delta):
 func _on_exit_timer_timeout() -> void:
 	can_wall_action = true
 
-func _handle_air_physics(delta : float) -> void:
-	if get_collision_x_normal() and not get_collision_down() and can_wall_action:
-		if Input.is_action_just_pressed('jump'):
-			_wall_jump(delta)
-		else:
-			_wall_run(delta)
-	else:
-		self.velocity.y -= gravity * delta
-		var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
-		var capped_speed = min((air_move_speed * wish_dir).length(), air_cap)
-
-		var add_speed_till_cap = capped_speed - cur_speed_in_wish_dir
-		if add_speed_till_cap > 0:
-			var accel_speed = air_accel * air_move_speed * delta
-			accel_speed = min(accel_speed, add_speed_till_cap)
-			self.velocity += accel_speed * wish_dir
-
-func _handle_ground_physics(delta : float) -> void:
-	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
-	var add_speed_till_cap = get_move_speed() - cur_speed_in_wish_dir
-	if add_speed_till_cap > 0:
-		var accel_speed = ground_accel * get_move_speed() * delta
-		accel_speed = min(accel_speed, add_speed_till_cap)
-		self.velocity += accel_speed * wish_dir
-
-	var control = max(self.velocity.length(), ground_decel)
-	var drop = control * ground_friction * delta
-	var new_speed = max(self.velocity.length() - drop, 0.0)
-	if self.velocity.length() > 0:
-		new_speed /= self.velocity.length()
-	self.velocity *= new_speed
-
-	_headbob_effect(delta)
-
-func _physics_process(delta: float) -> void:
-	var space_state = get_world_3d().direct_space_state
+func _physics_process(_delta: float) -> void:
 	var input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
 
 	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
-
-	if is_on_floor():
-		if Input.is_action_just_pressed('jump') or (auto_bhop and Input.is_action_pressed('jump')):
-			self.velocity.y += jump_velocity
-		_handle_ground_physics(delta)
-	else:
-		_handle_air_physics(delta)
-
 	move_and_slide()
 
 

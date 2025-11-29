@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://5negh75idjb0"]
+[gd_scene load_steps=9 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
 [ext_resource type="PackedScene" uid="uid://c2ooehocpil3i" path="res://assets/deagle.glb" id="2_jnw8r"]
-[ext_resource type="PackedScene" uid="uid://coy0gscoehudg" path="res://scenes/weapon_manager.tscn" id="2_p4b6d"]
-[ext_resource type="Script" uid="uid://5djlkwyw3q2" path="res://scripts/weapon_manager.gd" id="3_jnw8r"]
-[ext_resource type="Resource" uid="uid://7w1g7582fp4x" path="res://assets/deagle.tres" id="4_oiiwm"]
+[ext_resource type="Script" uid="uid://brglmhfwfpfhw" path="res://scripts/running.gd" id="4_p4b6d"]
+[ext_resource type="Script" uid="uid://b2b4ivtbgiesp" path="res://scripts/jumping.gd" id="5_jnw8r"]
+[ext_resource type="Script" uid="uid://ctvfi4ni0m338" path="res://scripts/state_machine.gd" id="6_oiiwm"]
+[ext_resource type="Script" uid="uid://dvapnrgjsm4tm" path="res://scripts/falling.gd" id="6_rsd00"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
@@ -48,16 +49,25 @@ transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0,
 
 [node name="deagle" parent="Head/Camera3D/ViewModel" instance=ExtResource("2_jnw8r")]
 transform = Transform3D(-1.3331974e-08, 0, 0.305, 0, 0.305, 0, -0.305, 0, -1.3331974e-08, 0.30000004, -0.5000001, -1.0000001)
+visible = false
 
 [node name="Exit Timer" type="Timer" parent="."]
 wait_time = 0.3
 one_shot = true
 
-[node name="WeaponManager" parent="." node_paths=PackedStringArray("player", "bullet_raycast", "view_model_container") instance=ExtResource("2_p4b6d")]
-script = ExtResource("3_jnw8r")
-current_weapon = ExtResource("4_oiiwm")
-player = NodePath("..")
-bullet_raycast = NodePath("../Head/Camera3D/RayCast3D")
-view_model_container = NodePath("../Head/Camera3D/ViewModel")
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("6_oiiwm")
+initial_state = NodePath("Running")
+metadata/_custom_type_script = "uid://ctvfi4ni0m338"
+
+[node name="Running" type="Node" parent="StateMachine"]
+script = ExtResource("4_p4b6d")
+
+[node name="Jumping" type="Node" parent="StateMachine"]
+script = ExtResource("5_jnw8r")
+metadata/_custom_type_script = "uid://b2b4ivtbgiesp"
+
+[node name="Falling" type="Node" parent="StateMachine"]
+script = ExtResource("6_rsd00")
 
 [connection signal="timeout" from="Exit Timer" to="." method="_on_exit_timer_timeout"]

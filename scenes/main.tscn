@@ -25,6 +25,8 @@ transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545
 shadow_enabled = true
 
 [node name="SourceController" parent="." instance=ExtResource("2_sugp2")]
+wall_jump_up_force = 8.0
+wall_jump_side_force = 9.11
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 transform = Transform3D(0.9, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, -0.5, -4)
@@ -51,3 +53,13 @@ size = Vector3(2, 4, 3)
 transform = Transform3D(0.42261824, 0.9063078, 0, -0.9063078, 0.42261824, 0, 0, 0, 1, 0.4544288, 2.876217, -4.2071075)
 use_collision = true
 size = Vector3(0.2, 4, 3)
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.999, 2, 7.5)
+use_collision = true
+size = Vector3(1, 5, 10)
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 13.999001, 2, 2.5)
+use_collision = true
+size = Vector3(1, 5, 10)

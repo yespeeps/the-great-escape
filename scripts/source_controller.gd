@@ -18,10 +18,10 @@ class_name Player extends CharacterBody3D
 @export var air_accel := 800.0
 @export var air_move_speed := 500.0
 
-@export var wall_jump_up_force := 700
-@export var wall_jump_side_force := 1200
+@export var wall_jump_up_force := 60.0
+@export var wall_jump_side_force := 50.0
 @export var wall_run_boost := 2.0
-@export var wall_run_side_speed := 7.0
+@export var wall_run_side_speed := 120.0
 
 # Ground movement settings
 @export var walk_speed := 7
@@ -38,6 +38,7 @@ var headbob_time = 0.0
 
 var wish_dir := Vector3.ZERO
 var input_dir
+var force_to_apply : Vector3
 
 var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
 
@@ -92,16 +93,16 @@ func get_move_speed() -> float:
 	return sprint_speed if Input.is_action_pressed('sprint') else walk_speed
 
 func update_rays():
-	var origin = global_transform.origin
+	var origin = global_position
 
 	ray_left.from = origin
-	ray_left.to = origin + Vector3(-0.6, 0, 0)
+	ray_left.to = origin + Vector3(-0.6, 0, 0) * global_basis
 
 	ray_right.from = origin
-	ray_right.to = origin + Vector3(0.6, 0, 0)
+	ray_right.to = origin + Vector3(0.6, 0, 0) * global_basis
 
 	ray_down.from = origin
-	ray_down.to = origin + Vector3(0, -0.6, 0)
+	ray_down.to = origin + Vector3(0, -0.6, 0) * global_basis
 
 func get_collision_x_normal():
 	var space = get_world_3d().direct_space_state

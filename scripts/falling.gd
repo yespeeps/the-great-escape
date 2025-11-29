@@ -1,11 +1,18 @@
 class_name Falling extends PlayerState
+var can_wallrun := true 
 
 func enter(previous_state_path: String, data := {}) -> void:
-	pass
+	if previous_state_path == WALLJUMPING:
+		can_wallrun = false
+		await get_tree().create_timer(1).timeout
+		can_wallrun = true
 
 func physics_update(delta: float) -> void:
 	if player.is_on_floor():
 		finished.emit(RUNNING)
+
+	if player.get_collision_x_normal() and can_wallrun:
+		finished.emit(WALLRUNNING)
 
 	player.velocity.y -= player.gravity * delta
 	var cur_speed_in_wish_dir = player.velocity.dot(player.wish_dir)

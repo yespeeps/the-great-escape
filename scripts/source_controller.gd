@@ -18,6 +18,7 @@ class_name Player extends CharacterBody3D
 
 @export var wall_jump_up_force := 700
 @export var wall_jump_side_force := 1200
+@export var wall_run_boost := 2
 
 # Ground movement settings
 @export var walk_speed := 7
@@ -33,6 +34,7 @@ const headbob_move_frequency = 2.4
 var headbob_time = 0.0
 
 var wish_dir := Vector3.ZERO
+var input_dir
 
 var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
 

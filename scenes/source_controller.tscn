@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://5negh75idjb0"]
+[gd_scene load_steps=11 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
 [ext_resource type="PackedScene" uid="uid://c2ooehocpil3i" path="res://assets/deagle.glb" id="2_jnw8r"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://b2b4ivtbgiesp" path="res://scripts/jumping.gd" id="5_jnw8r"]
 [ext_resource type="Script" uid="uid://ctvfi4ni0m338" path="res://scripts/state_machine.gd" id="6_oiiwm"]
 [ext_resource type="Script" uid="uid://dvapnrgjsm4tm" path="res://scripts/falling.gd" id="6_rsd00"]
+[ext_resource type="Script" uid="uid://dl8omehgps5vb" path="res://scripts/walljumping.gd" id="8_eqp4y"]
+[ext_resource type="Script" uid="uid://ckc6p63af4fgu" path="res://scripts/wallrunning.gd" id="11_eeyhy"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
@@ -69,5 +71,12 @@ metadata/_custom_type_script = "uid://b2b4ivtbgiesp"
 
 [node name="Falling" type="Node" parent="StateMachine"]
 script = ExtResource("6_rsd00")
+
+[node name="WallRunning" type="Node" parent="StateMachine"]
+script = ExtResource("11_eeyhy")
+metadata/_custom_type_script = "uid://ckc6p63af4fgu"
+
+[node name="WallJumping" type="Node" parent="StateMachine"]
+script = ExtResource("8_eqp4y")
 
 [connection signal="timeout" from="Exit Timer" to="." method="_on_exit_timer_timeout"]

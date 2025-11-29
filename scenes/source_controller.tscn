@@ -1,7 +1,6 @@
-[gd_scene load_steps=12 format=3 uid="uid://5negh75idjb0"]
+[gd_scene load_steps=11 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
-[ext_resource type="PackedScene" uid="uid://c2ooehocpil3i" path="res://assets/deagle.glb" id="2_jnw8r"]
 [ext_resource type="Script" uid="uid://brglmhfwfpfhw" path="res://scripts/running.gd" id="4_p4b6d"]
 [ext_resource type="Script" uid="uid://b2b4ivtbgiesp" path="res://scripts/jumping.gd" id="5_jnw8r"]
 [ext_resource type="Script" uid="uid://ctvfi4ni0m338" path="res://scripts/state_machine.gd" id="6_oiiwm"]
@@ -59,10 +58,6 @@ far = 25.0
 target_position = Vector3(0, 0, -999)
 
 [node name="ViewModel" type="Node3D" parent="Head/Camera3D"]
-transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
-
-[node name="deagle" parent="Head/Camera3D/ViewModel" instance=ExtResource("2_jnw8r")]
-transform = Transform3D(-1.3331974e-08, 0, 0.305, 0, 0.305, 0, -0.305, 0, -1.3331974e-08, 0.30000004, -0.5000001, -1.0000001)
 
 [node name="Exit Timer" type="Timer" parent="."]
 wait_time = 0.3

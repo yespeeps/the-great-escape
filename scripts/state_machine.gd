@@ -1,38 +1,39 @@
-extends Node
-@export var initial_state : State
+class_name StateMachine extends Node
 
-var current_state : State
-var states : Dictionary = { }
+## The initial state of the state machine. If not set, the first child node is used.
+@export var initial_state: State = null
+
+## The current state of the state machine.
+@onready var state: State = (func get_initial_state() -> State:
+	return initial_state if initial_state != null else get_child(0)
+).call()
 
 func _ready() -> void:
-	for child in get_children():
-		if child is State:
-			states[child.name.to_lower()] = child
-			child.Transitioned.connect(on_child_transition)
+	# Give every state a reference to the state machine.
+	for state_node: State in find_children("*", "State"):
+		state_node.finished.connect(_transition_to_next_state)
 
-	if initial_state:
-		initial_state.Enter()
-		current_state = initial_state
+	# State machines usually access data from the root node of the scene they're part of: the owner.
+	# We wait for the owner to be ready to guarantee all the data and nodes the states may need are available.
+	await owner.ready
+	state.enter("")
+
+func _transition_to_next_state(target_state_path: String, data: Dictionary = {}) -> void:
+	if not has_node(target_state_path):
+		printerr(owner.name + ": Trying to transition to state " + target_state_path + " but it does not exist.")
+		return
+
+	var previous_state_path := state.name
+	state.exit()
+	state = get_node(target_state_path)
+	state.enter(previous_state_path, data)
+
+func _unhandled_input(event: InputEvent) -> void:
+	state.handle_input(event)
 
 func _process(delta: float) -> void:
-	if current_state:
-		current_state.Update(delta)
+	state.update(delta)
 
 func _physics_process(delta: float) -> void:
-	if current_state:
-		current_state.Physics_Update(delta)
-
-func on_child_transition(state, new_state_name):
-	if state != current_state:
-		return
-
-	var new_state = states.get(new_state_name.to_lower())
-	if !new_state:
-		return
-
-	if current_state:
-		current_state.Exit()
-
-	new_state.Enter()
-
+	state.physics_update(delta)
 

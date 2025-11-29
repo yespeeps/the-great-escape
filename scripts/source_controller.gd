@@ -138,8 +138,9 @@ func _handle_air_physics(delta : float) -> void:
 		self.velocity += accel_speed * wish_dir
 
 func _handle_wallrun_physics(delta : float) -> void:
-	self.velocity.y -= gravity/2 * delta
+	self.velocity.y -= gravity/3 * delta
 	self.velocity.x += wish_dir.x * wall_run_side_speed * delta
+	self.velocity += -get_collision_x_normal() * delta
 
 func _handle_ground_physics(delta : float) -> void:
 	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)

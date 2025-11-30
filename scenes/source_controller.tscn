@@ -1,12 +1,6 @@
-[gd_scene load_steps=11 format=3 uid="uid://5negh75idjb0"]
+[gd_scene load_steps=5 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
-[ext_resource type="Script" path="res://scripts/running.gd" id="4_p4b6d"]
-[ext_resource type="Script" path="res://scripts/jumping.gd" id="5_jnw8r"]
-[ext_resource type="Script" path="res://scripts/state_machine.gd" id="6_oiiwm"]
-[ext_resource type="Script" path="res://scripts/falling.gd" id="6_rsd00"]
-[ext_resource type="Script" path="res://scripts/walljumping.gd" id="8_eqp4y"]
-[ext_resource type="Script" path="res://scripts/wallrunning.gd" id="11_eeyhy"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
@@ -40,10 +34,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_7ftjh")
 
 [node name="left" type="RayCast3D" parent="WorldModel"]
-transform = Transform3D(-4.371139e-08, 0.3, 0, -1, -1.3113417e-08, 0, 0, 0, 1, -0.5605272, 1.239296, 0)
+transform = Transform3D(-4.371139e-08, 0.3, 0, -1, -1.3113417e-08, 0, 0, 0, 1, -0.3505272, 1.239296, 0)
 
 [node name="right" type="RayCast3D" parent="WorldModel"]
-transform = Transform3D(-4.371139e-08, -0.3, 0, 1, -1.3113417e-08, 0, 0, 0, 1, 0.5394729, 1.239296, 0)
+transform = Transform3D(-4.371139e-08, -0.3, 0, 1, -1.3113417e-08, 0, 0, 0, 1, 0.32947287, 1.239296, 0)
 
 [node name="Head" type="Node3D" parent="."]
 unique_name_in_owner = true
@@ -63,28 +57,6 @@ target_position = Vector3(0, 0, -999)
 [node name="Exit Timer" type="Timer" parent="."]
 wait_time = 0.3
 one_shot = true
-
-[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
-script = ExtResource("6_oiiwm")
-initial_state = NodePath("Running")
-metadata/_custom_type_script = "uid://ctvfi4ni0m338"
-
-[node name="Running" type="Node" parent="StateMachine"]
-script = ExtResource("4_p4b6d")
-
-[node name="Jumping" type="Node" parent="StateMachine"]
-script = ExtResource("5_jnw8r")
-metadata/_custom_type_script = "uid://b2b4ivtbgiesp"
-
-[node name="Falling" type="Node" parent="StateMachine"]
-script = ExtResource("6_rsd00")
-
-[node name="WallRunning" type="Node" parent="StateMachine"]
-script = ExtResource("11_eeyhy")
-metadata/_custom_type_script = "uid://ckc6p63af4fgu"
-
-[node name="WallJumping" type="Node" parent="StateMachine"]
-script = ExtResource("8_eqp4y")
 
 [node name="ceiling" type="RayCast3D" parent="."]
 target_position = Vector3(0, 2.045, 0)

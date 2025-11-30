@@ -1,4 +1,4 @@
-#TODO: Add exiting wall state so walljumping is not interrupted, wallrun timer
+#TODO: Wallrun only when holding forward
 class_name Player extends CharacterBody3D
 @onready var world_model = $WorldModel
 @onready var camera = $Head/Camera3D
@@ -52,11 +52,9 @@ var can_gravity : bool
 var wall_running : bool
 var crouching := false
 
-enum States {RUNNING, CROUCHING, JUMPING, FALLING}
+enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING}
 var current_state : States:
 	set = set_state
-
-
 
 func _ready() -> void:
 	for child : VisualInstance3D in world_model.find_children('*', 'VisualInstance3D'):
@@ -159,7 +157,7 @@ func _handle_air_physics(delta : float) -> void:
 
 func _handle_wallrun_physics(delta : float) -> void:
 	self.velocity.y -= gravity/5 * delta
-	self.velocity += -get_collision_x_normal() * delta * 2
+	self.velocity += -get_last_slide_collision().get_normal() * delta * 2
 
 func _handle_ground_physics(delta : float) -> void:
 	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
@@ -183,6 +181,12 @@ func set_state(new_state):
 	var previous_state = current_state
 	current_state = new_state
 
+	if new_state == States.WALLRUNNING:
+		self.velocity.y /= 2
+	
+	if previous_state == States.WALLRUNNING:
+		camera.rotation.z = 0
+
 func _physics_process(delta: float) -> void:
 	input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
 	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
@@ -198,6 +202,15 @@ func _physics_process(delta: float) -> void:
 		States.FALLING:
 			if is_on_floor():
 				current_state = States.RUNNING
+			elif is_on_wall_only() and not input_dir:
+				current_state = States.WALLRUNNING
+		States.WALLRUNNING:
+			if Input.is_action_just_pressed('jump'):
+				current_state = States.WALLJUMPING
+			if !get_last_slide_collision() or input_dir:
+				current_state = States.FALLING
+		States.WALLJUMPING:
+			current_state = States.FALLING
 					
 	if current_state == States.RUNNING:
 		_handle_ground_physics(delta)
@@ -205,6 +218,14 @@ func _physics_process(delta: float) -> void:
 		self.velocity.y += jump_velocity
 	elif current_state == States.FALLING:
 		_handle_air_physics(delta)
+	elif current_state == States.WALLRUNNING:
+		if left.is_colliding():
+			camera.rotation.z = -0.2
+		else:
+			camera.rotation.z = 0.2
+		_handle_wallrun_physics(delta)
+	elif current_state == States.WALLJUMPING:
+		self.velocity += get_last_slide_collision().get_normal() * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
 
 	if Input.is_action_pressed('crouch'):
 		camera.position.y = -0.5

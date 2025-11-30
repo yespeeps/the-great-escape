@@ -28,6 +28,7 @@ class_name Player extends CharacterBody3D
 # Ground movement settings
 @export var walk_speed := 7
 @export var sprint_speed := 8.5
+@export var crouch_speed := 3.5
 @export var ground_accel := 6.0
 @export var ground_decel := 3.0
 @export var ground_friction := 4.0
@@ -43,15 +44,6 @@ var input_dir
 var force_to_apply : Vector3
 
 var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
-
-var ray_left : PhysicsRayQueryParameters3D
-var ray_right : PhysicsRayQueryParameters3D
-var ray_down : PhysicsRayQueryParameters3D
-
-var can_wall_action := true 
-var can_gravity : bool
-var wall_running : bool
-var crouching := false
 var lerp_speed := 7.0
 
 enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING}
@@ -62,19 +54,6 @@ func _ready() -> void:
 	for child : VisualInstance3D in world_model.find_children('*', 'VisualInstance3D'):
 		child.set_layer_mask_value(1, false)
 		child.set_layer_mask_value(2, true)
-
-	ray_left = PhysicsRayQueryParameters3D.new()
-	ray_right = PhysicsRayQueryParameters3D.new()
-	ray_down = PhysicsRayQueryParameters3D.new()
-
-	ray_left.collide_with_areas = true
-	ray_left.collide_with_bodies = true
-
-	ray_right.collide_with_areas = true
-	ray_right.collide_with_bodies = true
-
-	ray_down.collide_with_bodies = true
-	ray_down.collide_with_bodies = true
 				
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -97,54 +76,12 @@ func _headbob_effect(delta : float):
 	)
 
 func get_move_speed() -> float:
-	return sprint_speed if Input.is_action_pressed('sprint') else walk_speed
-
-func update_rays():
-	var origin = global_position
-
-	ray_left.from = origin
-	ray_left.to = origin + Vector3(-0.6, 0, 0) * global_basis
-
-	ray_right.from = origin
-	ray_right.to = origin + Vector3(0.6, 0, 0) * global_basis
-
-	ray_down.from = origin
-	ray_down.to = origin + Vector3(0, -0.6, 0) * global_basis
-
-func get_collision_x_normal():
-	var space = get_world_3d().direct_space_state
-	update_rays()
-
-	var result_left = space.intersect_ray(ray_left)
-	var result_right = space.intersect_ray(ray_right)
-
-	if result_left:
-		return result_left.normal
-	elif result_right:
-		return result_right.normal
-	return null
-
-func get_collision_x():
-	var space = get_world_3d().direct_space_state
-	update_rays()
-
-	var result_left = space.intersect_ray(ray_left)
-	var result_right = space.intersect_ray(ray_right)
-
-	if result_left:
-		return result_left
-	elif result_right:
-		return result_right
-	return null
-
-func get_collision_down():
-	var space = get_world_3d().direct_space_state
-	var result_down = space.intersect_ray(ray_down)
-
-	if result_down:
-		return result_down
-	else:
-		return null
+	if Input.is_action_pressed('sprint'):
+		return sprint_speed
+	elif Input.is_action_pressed('crouch'):
+		return crouch_speed
+	else: 
+		return walk_speed
 
 func _handle_air_physics(delta : float) -> void:
 	self.velocity.y -= gravity * delta
@@ -176,8 +113,11 @@ func _handle_ground_physics(delta : float) -> void:
 		new_speed /= self.velocity.length()
 	self.velocity *= new_speed
 
-func _on_exit_timer_timeout() -> void:
-	can_wall_action = true
+func wall_jump() -> void:
+	self.velocity += get_last_slide_collision().get_normal() * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
+
+func jump():
+	self.velocity.y += jump_velocity
 
 func set_state(new_state):
 	var previous_state = current_state
@@ -186,18 +126,13 @@ func set_state(new_state):
 	if new_state == States.WALLRUNNING:
 		self.velocity.y /= 2
 
-	if previous_state == States.CROUCHING:
-		camera.position.y = 0
-
-	if previous_state == States.WALLRUNNING:
-		camera.rotation.z = 0
-
 	return previous_state
 
 func _physics_process(delta: float) -> void:
 	input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
 	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
 
+	## State Machine
 	match (current_state):
 		States.RUNNING:
 			if Input.is_action_pressed('jump'):
@@ -229,24 +164,39 @@ func _physics_process(delta: float) -> void:
 				current_state = States.RUNNING
 
 	## Movement
-	if current_state == States.RUNNING:
+	if current_state in [States.RUNNING, States.CROUCHING]:
 		_handle_ground_physics(delta)
 	elif current_state == States.JUMPING:
-		self.velocity.y += jump_velocity
+		jump()
 	elif current_state == States.FALLING:	
 		_handle_air_physics(delta)
 	elif current_state == States.WALLRUNNING:
+		_handle_wallrun_physics(delta)
+	elif current_state == States.WALLJUMPING:
+		wall_jump()
+
+	## Camera Movement
+	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING]: 
+		camera.position.y = lerp(camera.position.y, 0.0, lerp_speed * delta)
+		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
+	elif current_state == States.CROUCHING:
+		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
+		camera.position.y = lerp(camera.position.y, -0.5, lerp_speed * delta)
+	elif current_state == States.WALLRUNNING:
+		camera.position.y = lerp(camera.position.y, 0.0, lerp_speed * delta)
 		var target_pos = 0.2
 		if left.is_colliding():
 			camera.rotation.z = lerp(camera.rotation.z, -target_pos, delta * lerp_speed)
 		else:
 			camera.rotation.z = lerp(camera.rotation.z, target_pos, delta * lerp_speed)
-		_handle_wallrun_physics(delta)
-	elif current_state == States.WALLJUMPING:
-		self.velocity += get_last_slide_collision().get_normal() * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
-	elif current_state == States.CROUCHING:
-		camera.position.y = -0.5
-		_handle_ground_physics(delta)
+
+	## Collider Setting
+	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:
+		standing_collider.disabled = false
+		crouching_collider.disabled = true
+	else:
+		standing_collider.disabled = true
+		crouching_collider.disabled = false
 
 	move_and_slide()
 

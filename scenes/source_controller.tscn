@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://5negh75idjb0"]
+[gd_scene load_steps=6 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
+[ext_resource type="PackedScene" uid="uid://ixuvfofo38me" path="res://scenes/deagle.tscn" id="2_3pmoh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
@@ -53,6 +54,9 @@ far = 25.0
 target_position = Vector3(0, 0, -999)
 
 [node name="ViewModel" type="Node3D" parent="Head/Camera3D"]
+
+[node name="Deagle" parent="Head/Camera3D/ViewModel" instance=ExtResource("2_3pmoh")]
+transform = Transform3D(-1.3769087e-08, 0, 0.315, 0, 0.315, 0, -0.315, 0, -1.3769087e-08, 0.25199997, -0.53, -0.945)
 
 [node name="Exit Timer" type="Timer" parent="."]
 wait_time = 0.3

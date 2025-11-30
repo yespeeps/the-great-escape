@@ -202,12 +202,12 @@ func _physics_process(delta: float) -> void:
 		States.FALLING:
 			if is_on_floor():
 				current_state = States.RUNNING
-			elif is_on_wall_only() and not input_dir:
+			elif is_on_wall_only() and (left.is_colliding() or right.is_colliding()) and Input.is_action_pressed('input_forward'):
 				current_state = States.WALLRUNNING
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'):
 				current_state = States.WALLJUMPING
-			if !get_last_slide_collision() or input_dir:
+			if !get_last_slide_collision() or !Input.is_action_pressed('input_forward'):
 				current_state = States.FALLING
 		States.WALLJUMPING:
 			current_state = States.FALLING

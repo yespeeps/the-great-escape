@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://ixuvfofo38me"]
+
+[ext_resource type="ArrayMesh" uid="uid://j4lvghohm0sp" path="res://assets/deagle.obj" id="1_8wwpp"]
+
+[node name="Deagle" type="Node3D"]
+transform = Transform3D(-1.3769087e-08, 0, 0.315, 0, 0.315, 0, -0.315, 0, -1.3769087e-08, 0.25199997, 1.26, -0.945)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_8wwpp")

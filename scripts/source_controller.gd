@@ -119,7 +119,7 @@ func _handle_ground_physics(delta : float) -> void:
 func _handle_slide_physics(delta: float):
 	#just added the friction code but there is no need for control
 	var control = ground_decel
-	var drop = control * ground_friction * delta
+	var drop = control * ground_friction/2 * delta
 	var new_speed = max(self.velocity.length() - drop, 0.0)
 	if self.velocity.length() > 0:
 		new_speed /= self.velocity.length()
@@ -137,9 +137,10 @@ func set_state(new_state):
 
 	if new_state == States.WALLRUNNING:
 		self.velocity.y /= 2
+		self.velocity += wish_dir * max(self.velocity.length(), get_move_speed()) / 4
 	
 	if new_state == States.SLIDING:
-		self.velocity += -global_basis.z * slide_impulse
+		self.velocity += wish_dir * max(self.velocity.length(), get_move_speed())
 
 	if previous_state == States.SLIDING:
 		can_slide = false
@@ -171,7 +172,7 @@ func _physics_process(delta: float) -> void:
 		States.FALLING:
 			if is_on_floor():
 				current_state = States.RUNNING
-			elif is_on_wall_only() and (left.is_colliding() or right.is_colliding()) and Input.is_action_pressed('input_forward') and self.velocity.length() > (walk_speed - 0.5):
+			elif is_on_wall_only() and (left.is_colliding() or right.is_colliding()) and Input.is_action_pressed('input_forward') and Input.is_action_pressed('sprint'):
 				current_state = States.WALLRUNNING
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'):
@@ -223,7 +224,7 @@ func _physics_process(delta: float) -> void:
 			camera.rotation.z = lerp(camera.rotation.z, target_pos, delta * lerp_speed)
 	elif current_state == States.SLIDING:
 		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
-		camera.position.y = lerp(camera.position.y, -0.7, lerp_speed * delta)
+		camera.position.y = lerp(camera.position.y, -0.9, lerp_speed * delta * 2)
 
 	## Collider Setting
 	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:

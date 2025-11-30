@@ -45,8 +45,11 @@ var force_to_apply : Vector3
 
 var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
 var lerp_speed := 7.0
+var can_slide := true
+var slide_cooldown := 2.0
+var slide_impulse := 7.0
 
-enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING}
+enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING, SLIDING}
 var current_state : States:
 	set = set_state
 
@@ -76,7 +79,7 @@ func _headbob_effect(delta : float):
 	)
 
 func get_move_speed() -> float:
-	if Input.is_action_pressed('sprint'):
+	if Input.is_action_pressed('sprint') and !Input.is_action_pressed('crouch'):
 		return sprint_speed
 	elif Input.is_action_pressed('crouch'):
 		return crouch_speed
@@ -113,6 +116,15 @@ func _handle_ground_physics(delta : float) -> void:
 		new_speed /= self.velocity.length()
 	self.velocity *= new_speed
 
+func _handle_slide_physics(delta: float):
+	#just added the friction code but there is no need for control
+	var control = ground_decel
+	var drop = control * ground_friction * delta
+	var new_speed = max(self.velocity.length() - drop, 0.0)
+	if self.velocity.length() > 0:
+		new_speed /= self.velocity.length()
+	self.velocity *= new_speed
+
 func wall_jump() -> void:
 	self.velocity += get_last_slide_collision().get_normal() * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
 
@@ -125,6 +137,14 @@ func set_state(new_state):
 
 	if new_state == States.WALLRUNNING:
 		self.velocity.y /= 2
+	
+	if new_state == States.SLIDING:
+		self.velocity += -global_basis.z * slide_impulse
+
+	if previous_state == States.SLIDING:
+		can_slide = false
+		await get_tree().create_timer(slide_cooldown).timeout
+		can_slide = true
 
 	return previous_state
 
@@ -139,8 +159,13 @@ func _physics_process(delta: float) -> void:
 				current_state = States.JUMPING
 			elif not is_on_floor():
 				current_state = States.FALLING
-			elif Input.is_action_pressed('crouch'):
+			elif Input.is_action_pressed('crouch') and !Input.is_action_pressed('sprint'):
 				current_state = States.CROUCHING
+			elif Input.is_action_pressed('crouch') and Input.is_action_pressed('sprint'):
+				if can_slide:
+					current_state = States.SLIDING
+				else:
+					current_state = States.CROUCHING
 		States.JUMPING:
 			current_state = States.FALLING
 		States.FALLING:
@@ -156,12 +181,17 @@ func _physics_process(delta: float) -> void:
 		States.WALLJUMPING:
 			current_state = States.FALLING
 		States.CROUCHING:
-			if Input.is_action_pressed('jump'):
-				current_state = States.JUMPING
-			elif not is_on_floor():
+			if not is_on_floor():
 				current_state = States.FALLING
 			elif !Input.is_action_pressed('crouch'):
 				current_state = States.RUNNING
+		States.SLIDING:
+			if !Input.is_action_pressed('crouch'):
+				current_state = States.RUNNING
+			elif self.velocity.length() <= 0.1:
+				current_state = States.CROUCHING
+			elif not is_on_floor():
+				current_state = States.FALLING
 
 	## Movement
 	if current_state in [States.RUNNING, States.CROUCHING]:
@@ -174,6 +204,8 @@ func _physics_process(delta: float) -> void:
 		_handle_wallrun_physics(delta)
 	elif current_state == States.WALLJUMPING:
 		wall_jump()
+	elif current_state == States.SLIDING:
+		_handle_slide_physics(delta)
 
 	## Camera Movement
 	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING]: 
@@ -189,6 +221,9 @@ func _physics_process(delta: float) -> void:
 			camera.rotation.z = lerp(camera.rotation.z, -target_pos, delta * lerp_speed)
 		else:
 			camera.rotation.z = lerp(camera.rotation.z, target_pos, delta * lerp_speed)
+	elif current_state == States.SLIDING:
+		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
+		camera.position.y = lerp(camera.position.y, -0.7, lerp_speed * delta)
 
 	## Collider Setting
 	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:

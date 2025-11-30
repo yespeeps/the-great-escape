@@ -4,6 +4,7 @@ class_name Player extends CharacterBody3D
 @onready var camera = $Head/Camera3D
 @onready var standing_collider = $StandingCollider
 @onready var crouching_collider = $CrouchingCollider
+@onready var ceiling = $ceiling
 
 @onready var right = $WorldModel/right
 @onready var left = $WorldModel/left
@@ -50,6 +51,12 @@ var can_wall_action := true
 var can_gravity : bool
 var wall_running : bool
 var crouching := false
+
+enum States {RUNNING, CROUCHING, JUMPING, FALLING}
+var current_state : States:
+	set = set_state
+
+
 
 func _ready() -> void:
 	for child : VisualInstance3D in world_model.find_children('*', 'VisualInstance3D'):
@@ -151,7 +158,7 @@ func _handle_air_physics(delta : float) -> void:
 		self.velocity += accel_speed * wish_dir
 
 func _handle_wallrun_physics(delta : float) -> void:
-	self.velocity.y -= gravity/3 * delta
+	self.velocity.y -= gravity/5 * delta
 	self.velocity += -get_collision_x_normal() * delta * 2
 
 func _handle_ground_physics(delta : float) -> void:
@@ -172,18 +179,45 @@ func _handle_ground_physics(delta : float) -> void:
 func _on_exit_timer_timeout() -> void:
 	can_wall_action = true
 
-func _physics_process(_delta: float) -> void:
+func set_state(new_state):
+	var previous_state = current_state
+	current_state = new_state
+
+func _physics_process(delta: float) -> void:
 	input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
 	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
 
-	if Input.is_action_pressed("crouch"):
+	match (current_state):
+		States.RUNNING:
+			if Input.is_action_pressed('jump'):
+				current_state = States.JUMPING
+			elif not is_on_floor():
+				current_state = States.FALLING
+		States.JUMPING:
+			current_state = States.FALLING
+		States.FALLING:
+			if is_on_floor():
+				current_state = States.RUNNING
+					
+	if current_state == States.RUNNING:
+		_handle_ground_physics(delta)
+	elif current_state == States.JUMPING:
+		self.velocity.y += jump_velocity
+	elif current_state == States.FALLING:
+		_handle_air_physics(delta)
+
+	if Input.is_action_pressed('crouch'):
 		camera.position.y = -0.5
 		standing_collider.disabled = true
 		crouching_collider.disabled = false
-	else:
-		crouching_collider.disabled = true
+	elif !ceiling.is_colliding():
 		standing_collider.disabled = false
+		crouching_collider.disabled = true
 		camera.position.y = 0
+
+
+
+
 	move_and_slide()
 
 

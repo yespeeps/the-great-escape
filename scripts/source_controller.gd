@@ -117,6 +117,19 @@ func get_collision_x_normal():
 		return result_right.normal
 	return null
 
+func get_collision_x():
+	var space = get_world_3d().direct_space_state
+	update_rays()
+
+	var result_left = space.intersect_ray(ray_left)
+	var result_right = space.intersect_ray(ray_right)
+
+	if result_left:
+		return result_left
+	elif result_right:
+		return result_right
+	return null
+
 func get_collision_down():
 	var space = get_world_3d().direct_space_state
 	var result_down = space.intersect_ray(ray_down)
@@ -139,8 +152,7 @@ func _handle_air_physics(delta : float) -> void:
 
 func _handle_wallrun_physics(delta : float) -> void:
 	self.velocity.y -= gravity/3 * delta
-	self.velocity.x += wish_dir.x * wall_run_side_speed * delta
-	self.velocity += -get_collision_x_normal() * delta
+	self.velocity += -get_collision_x_normal() * delta * 2
 
 func _handle_ground_physics(delta : float) -> void:
 	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)

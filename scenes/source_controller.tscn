@@ -18,6 +18,7 @@ height = 1.00625
 [node name="SourceController" type="CharacterBody3D"]
 script = ExtResource("1_7ftjh")
 jump_velocity = 8.13
+auto_bhop = false
 sprint_speed = 9.385
 ground_accel = 6.47
 ground_decel = 2.45

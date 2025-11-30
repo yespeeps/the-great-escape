@@ -1,10 +1,18 @@
 class_name WallRunning extends PlayerState
 var wallrun_start : bool
 
-func enter(_previous_state_path: String, _data := {}) -> void:
+func enter(_previous_state_path: String, data := {}) -> void:
 	player.velocity.y /= 2
 	player.velocity += player.wall_run_boost * -player.global_transform.basis.z
-	print('ruh roh')
+
+	player.update_rays()
+	var collision = player.get_collision_x()
+	if data.space:
+		if collision == data.space.intersect_ray(player.ray_left):
+			player.camera.rotation.z -= 0.2
+		elif collision == data.space.intersect_ray(player.ray_right):
+			player.camera.rotation.z += 0.2
+	
 
 func physics_update(delta: float) -> void:
 	if !player.get_collision_x_normal() or player.input_dir:
@@ -18,4 +26,4 @@ func physics_update(delta: float) -> void:
 	player._handle_wallrun_physics(delta)
 
 func exit() -> void:
-	player.camera.position.y = 0
+	player.camera.rotation.z = 0

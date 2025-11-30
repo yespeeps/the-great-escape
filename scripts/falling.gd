@@ -2,6 +2,7 @@
 
 class_name Falling extends PlayerState
 var can_wallrun := true
+var space_state : PhysicsDirectSpaceState3D
 
 func _handle_air_physics(delta : float) -> void:
 	player.velocity.y -= player.gravity * delta
@@ -22,11 +23,13 @@ func enter(previous_state_path: String, data := {}) -> void:
 		can_wallrun = true
 
 func physics_update(delta: float) -> void:
+
 	if player.is_on_floor():
 		finished.emit(RUNNING)
 
 	if player.get_collision_x_normal() and not player.get_collision_down() and can_wallrun and not player.input_dir:
-		print(player.global_transform.basis.z.dot(player.get_collision_x_normal()))
-		finished.emit(WALLRUNNING)
+		finished.emit(WALLRUNNING, {
+			'space': space_state
+		})
 
 	_handle_air_physics(delta)

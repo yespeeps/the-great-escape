@@ -1,4 +1,4 @@
-#TODO: Wallrun only when holding forward
+#TODO: Change collision checks to only be raycasts (maybe)
 class_name Player extends CharacterBody3D
 @onready var world_model = $WorldModel
 @onready var camera = $Head/Camera3D
@@ -13,7 +13,7 @@ class_name Player extends CharacterBody3D
 
 @export var look_sens : float = 0.002
 @export var jump_velocity := 6.0
-@export var auto_bhop := true
+@export var auto_bhop := false
 
 # Air movement settings. Need to tweak these to get the feeling dialed in.
 @export var air_cap := 0.85 # Can surf steeper ramps if this is higher, makes it easier to stick and bhop
@@ -46,8 +46,10 @@ var force_to_apply : Vector3
 var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
 var lerp_speed := 7.0
 var can_slide := true
-var slide_cooldown := 2.0
-var slide_impulse := 7.0
+var slide_cooldown := 0.5
+var slide_impulse := 1.0
+var previous_wall_jump_position : float
+var wall_count : int 
 
 enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING, SLIDING}
 var current_state : States:
@@ -81,7 +83,7 @@ func _headbob_effect(delta : float):
 func get_move_speed() -> float:
 	if Input.is_action_pressed('sprint') and !Input.is_action_pressed('crouch'):
 		return sprint_speed
-	elif Input.is_action_pressed('crouch'):
+	elif Input.is_action_pressed('crouch') or ceiling.is_colliding():
 		return crouch_speed
 	else: 
 		return walk_speed
@@ -117,16 +119,17 @@ func _handle_ground_physics(delta : float) -> void:
 	self.velocity *= new_speed
 
 func _handle_slide_physics(delta: float):
-	#just added the friction code but there is no need for control
-	var control = ground_decel
-	var drop = control * ground_friction/2 * delta
+	#just added the friction code
+	var control = max(self.velocity.length(), ground_decel)
+	var drop = control * ground_friction/5 * delta
 	var new_speed = max(self.velocity.length() - drop, 0.0)
 	if self.velocity.length() > 0:
 		new_speed /= self.velocity.length()
 	self.velocity *= new_speed
 
 func wall_jump() -> void:
-	self.velocity += get_last_slide_collision().get_normal() * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
+	if get_last_slide_collision():
+		self.velocity += get_last_slide_collision().get_normal() * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
 
 func jump():
 	self.velocity.y += jump_velocity
@@ -140,7 +143,12 @@ func set_state(new_state):
 		self.velocity += wish_dir * max(self.velocity.length(), get_move_speed()) / 4
 	
 	if new_state == States.SLIDING:
-		self.velocity += wish_dir * max(self.velocity.length(), get_move_speed())
+		self.velocity += -global_basis.z * max(self.velocity.length(), get_move_speed())
+	
+	# TODO: add count like in parkour reborn or like in titanfall 2
+	if previous_state == States.WALLJUMPING or (new_state == States.FALLING and previous_state == States.WALLRUNNING):
+		previous_wall_jump_position = self.position.y
+		wall_count += 1
 
 	if previous_state == States.SLIDING:
 		can_slide = false
@@ -156,7 +164,7 @@ func _physics_process(delta: float) -> void:
 	## State Machine
 	match (current_state):
 		States.RUNNING:
-			if Input.is_action_pressed('jump'):
+			if Input.is_action_just_pressed('jump'):
 				current_state = States.JUMPING
 			elif not is_on_floor():
 				current_state = States.FALLING
@@ -172,7 +180,7 @@ func _physics_process(delta: float) -> void:
 		States.FALLING:
 			if is_on_floor():
 				current_state = States.RUNNING
-			elif is_on_wall_only() and (left.is_colliding() or right.is_colliding()) and Input.is_action_pressed('input_forward') and Input.is_action_pressed('sprint'):
+			elif is_on_wall_only() and (left.is_colliding() or right.is_colliding()) and Input.is_action_pressed('input_forward'):
 				current_state = States.WALLRUNNING
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'):
@@ -184,7 +192,7 @@ func _physics_process(delta: float) -> void:
 		States.CROUCHING:
 			if not is_on_floor():
 				current_state = States.FALLING
-			elif !Input.is_action_pressed('crouch'):
+			elif !Input.is_action_pressed('crouch') and !ceiling.is_colliding():
 				current_state = States.RUNNING
 		States.SLIDING:
 			if !Input.is_action_pressed('crouch'):

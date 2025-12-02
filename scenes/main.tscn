@@ -28,6 +28,7 @@ shadow_enabled = true
 [node name="SourceController" parent="." instance=ExtResource("2_sugp2")]
 wall_jump_up_force = 8.0
 wall_jump_side_force = 9.11
+sprint_speed = 22.05
 
 [node name="RigidBody3D" parent="." instance=ExtResource("2_0wfyh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 4)

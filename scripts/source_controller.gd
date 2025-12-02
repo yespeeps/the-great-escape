@@ -1,5 +1,6 @@
 #TODO: Change collision checks to only be raycasts (maybe)
 class_name Player extends CharacterBody3D
+
 @onready var world_model = $WorldModel
 @onready var camera = $Head/Camera3D
 @onready var standing_collider = $StandingCollider
@@ -8,7 +9,6 @@ class_name Player extends CharacterBody3D
 @onready var ceiling = $ceiling
 @onready var right = $WorldModel/right
 @onready var left = $WorldModel/left
-@onready var cam_cast = $Head/Camera3D/RayCast3D
 @onready var exit_timer = $"Exit Timer"
 
 @export var look_sens : float = 0.002
@@ -20,8 +20,8 @@ class_name Player extends CharacterBody3D
 @export var air_accel := 800.0
 @export var air_move_speed := 500.0
 
-@export var wall_jump_up_force := 7.0
-@export var wall_jump_side_force := 17.0
+@export var wall_jump_up_force := 5.0
+@export var wall_jump_side_force := 5.0
 @export var wall_run_boost := 2.0
 @export var wall_run_side_speed := 120.0
 
@@ -102,6 +102,7 @@ func _handle_air_physics(delta : float) -> void:
 func _handle_wallrun_physics(delta : float) -> void:
 	self.velocity.y -= gravity/3 * delta
 	self.velocity += -get_last_slide_collision().get_normal() * delta * 2
+		
 
 func _handle_ground_physics(delta : float) -> void:
 	var cur_speed_in_wish_dir = self.velocity.dot(wish_dir)
@@ -180,13 +181,18 @@ func _physics_process(delta: float) -> void:
 		States.FALLING:
 			if is_on_floor():
 				current_state = States.RUNNING
-			elif is_on_wall_only() and (left.is_colliding() or right.is_colliding()) and Input.is_action_pressed('input_forward'):
+			elif is_on_wall_only() and (left.is_colliding() or right.is_colliding()):
 				current_state = States.WALLRUNNING
 		States.WALLRUNNING:
-			if Input.is_action_just_pressed('jump'):
-				current_state = States.WALLJUMPING
-			elif !get_last_slide_collision() or !Input.is_action_pressed('input_forward') or Input.is_action_just_pressed('crouch') or is_on_floor():
+			if !get_last_slide_collision() or Input.is_action_just_pressed('crouch') or is_on_floor():
 				current_state = States.FALLING
+			elif get_last_slide_collision():
+				if wish_dir.normalized().dot(get_last_slide_collision().get_normal()) >= 0.7:
+					print(wish_dir.normalized().dot(get_last_slide_collision().get_normal()))
+					current_state = States.FALLING
+				if Input.is_action_just_pressed('jump'):
+					current_state = States.WALLJUMPING
+
 		States.WALLJUMPING:
 			current_state = States.FALLING
 		States.CROUCHING:

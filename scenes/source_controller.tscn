@@ -48,9 +48,6 @@ unique_name_in_owner = true
 cull_mask = 1048573
 fov = 90.0
 
-[node name="RayCast3D" type="RayCast3D" parent="Head/Camera3D"]
-target_position = Vector3(0, 0, -999)
-
 [node name="ViewModel" type="Node3D" parent="Head/Camera3D"]
 
 [node name="Deagle" parent="Head/Camera3D/ViewModel" instance=ExtResource("2_3pmoh")]

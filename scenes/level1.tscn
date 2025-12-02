@@ -1,75 +1,81 @@
-[gd_scene load_steps=6 format=4 uid="uid://bwh2ryygpvbyx"]
+[gd_scene load_steps=8 format=3 uid="uid://bwh2ryygpvbyx"]
 
 [ext_resource type="PackedScene" uid="uid://5negh75idjb0" path="res://scenes/source_controller.tscn" id="1_g2h75"]
+[ext_resource type="Script" uid="uid://blmda22hygnny" path="res://scripts/level_1.gd" id="1_m7ahb"]
+[ext_resource type="PackedScene" uid="uid://cohiqpndtgam" path="res://scenes/enemy.tscn" id="2_wwpf4"]
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_g2h75"]
-_surfaces = [{
-"aabb": AABB(-1.15, -0.0005, -2.3, 2.3, 0.001, 4.6),
-"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/"),
-"format": 34359738391,
-"primitive": 3,
-"uv_scale": Vector4(0, 0, 0, 0),
-"vertex_count": 36,
-"vertex_data": PackedByteArray("MzOTv28SA7ozMxNAMzOTv28SA7ozMxPAMzOTv28SAzozMxPAMzOTP28SA7ozMxPAMzOTv28SA7ozMxPAMzOTv28SA7ozMxNAMzOTv28SAzozMxPAMzOTv28SA7ozMxPAMzOTP28SA7ozMxPAMzOTv28SAzozMxPAMzOTv28SAzozMxNAMzOTv28SA7ozMxNAMzOTv28SA7ozMxNAMzOTv28SAzozMxNAMzOTP28SAzozMxNAMzOTP28SAzozMxNAMzOTv28SAzozMxNAMzOTv28SAzozMxPAMzOTv28SA7ozMxNAMzOTP28SA7ozMxNAMzOTP28SA7ozMxPAMzOTP28SAzozMxNAMzOTP28SA7ozMxNAMzOTv28SA7ozMxNAMzOTP28SA7ozMxPAMzOTP28SA7ozMxNAMzOTP28SAzozMxNAMzOTP28SA7ozMxPAMzOTP28SAzozMxPAMzOTv28SAzozMxPAMzOTv28SAzozMxPAMzOTP28SAzozMxPAMzOTP28SAzozMxNAMzOTP28SAzozMxNAMzOTP28SAzozMxPAMzOTP28SA7ozMxPAAAD/f/9//n8AAP9//3/+fwAA/3//f/5//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//////AAD/f/////8AAP9//////wAA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5/")
-}]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_g2h75"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_g2h75"]
-data = PackedVector3Array(-1.15, -0.0005, 2.3, -1.15, -0.0005, -2.3, -1.15, 0.0005, -2.3, 1.15, -0.0005, -2.3, -1.15, -0.0005, -2.3, -1.15, -0.0005, 2.3, -1.15, 0.0005, -2.3, -1.15, -0.0005, -2.3, 1.15, -0.0005, -2.3, -1.15, 0.0005, -2.3, -1.15, 0.0005, 2.3, -1.15, -0.0005, 2.3, -1.15, -0.0005, 2.3, -1.15, 0.0005, 2.3, 1.15, 0.0005, 2.3, 1.15, 0.0005, 2.3, -1.15, 0.0005, 2.3, -1.15, 0.0005, -2.3, -1.15, -0.0005, 2.3, 1.15, -0.0005, 2.3, 1.15, -0.0005, -2.3, 1.15, 0.0005, 2.3, 1.15, -0.0005, 2.3, -1.15, -0.0005, 2.3, 1.15, -0.0005, -2.3, 1.15, -0.0005, 2.3, 1.15, 0.0005, 2.3, 1.15, -0.0005, -2.3, 1.15, 0.0005, -2.3, -1.15, 0.0005, -2.3, -1.15, 0.0005, -2.3, 1.15, 0.0005, -2.3, 1.15, 0.0005, 2.3, 1.15, 0.0005, 2.3, 1.15, 0.0005, -2.3, 1.15, -0.0005, -2.3)
+[sub_resource type="Sky" id="Sky_wwpf4"]
+sky_material = SubResource("ProceduralSkyMaterial_g2h75")
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_wwpf4"]
-data = PackedVector3Array(-2, -0.0005, 5, -2, -0.0005, -5, -2, 0.0005, -5, 2, -0.0005, -5, -2, -0.0005, -5, -2, -0.0005, 5, -2, 0.0005, -5, -2, -0.0005, -5, 2, -0.0005, -5, -2, 0.0005, -5, -2, 0.0005, 5, -2, -0.0005, 5, -2, -0.0005, 5, -2, 0.0005, 5, 2, 0.0005, 5, 2, 0.0005, 5, -2, 0.0005, 5, -2, 0.0005, -5, -2, -0.0005, 5, 2, -0.0005, 5, 2, -0.0005, -5, 2, 0.0005, 5, 2, -0.0005, 5, -2, -0.0005, 5, 2, -0.0005, -5, 2, -0.0005, 5, 2, 0.0005, 5, 2, -0.0005, -5, 2, 0.0005, -5, -2, 0.0005, -5, -2, 0.0005, -5, 2, 0.0005, -5, 2, 0.0005, 5, 2, 0.0005, 5, 2, 0.0005, -5, 2, -0.0005, -5)
+[sub_resource type="Environment" id="Environment_m7ahb"]
+background_mode = 2
+sky = SubResource("Sky_wwpf4")
+tonemap_mode = 2
+glow_enabled = true
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_m7ahb"]
-_surfaces = [{
-"aabb": AABB(-2, -0.0005, -5, 4, 0.001, 10),
-"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/"),
-"format": 34359738391,
-"primitive": 3,
-"uv_scale": Vector4(0, 0, 0, 0),
-"vertex_count": 36,
-"vertex_data": PackedByteArray("AAAAwG8SA7oAAKBAAAAAwG8SA7oAAKDAAAAAwG8SAzoAAKDAAAAAQG8SA7oAAKDAAAAAwG8SA7oAAKDAAAAAwG8SA7oAAKBAAAAAwG8SAzoAAKDAAAAAwG8SA7oAAKDAAAAAQG8SA7oAAKDAAAAAwG8SAzoAAKDAAAAAwG8SAzoAAKBAAAAAwG8SA7oAAKBAAAAAwG8SA7oAAKBAAAAAwG8SAzoAAKBAAAAAQG8SAzoAAKBAAAAAQG8SAzoAAKBAAAAAwG8SAzoAAKBAAAAAwG8SAzoAAKDAAAAAwG8SA7oAAKBAAAAAQG8SA7oAAKBAAAAAQG8SA7oAAKDAAAAAQG8SAzoAAKBAAAAAQG8SA7oAAKBAAAAAwG8SA7oAAKBAAAAAQG8SA7oAAKDAAAAAQG8SA7oAAKBAAAAAQG8SAzoAAKBAAAAAQG8SA7oAAKDAAAAAQG8SAzoAAKDAAAAAwG8SAzoAAKDAAAAAwG8SAzoAAKDAAAAAQG8SAzoAAKDAAAAAQG8SAzoAAKBAAAAAQG8SAzoAAKBAAAAAQG8SAzoAAKDAAAAAQG8SA7oAAKDAAAD/f/9//n8AAP9//3/+fwAA/3//f/5//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//////AAD/f/////8AAP9//////wAA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5/")
-}]
+[sub_resource type="NavigationMesh" id="NavigationMesh_dwgg1"]
+vertices = PackedVector3Array(-9, 0.5, 5.9000015, -6.25, 0.5, 5.9000015, -6, 0.5, 5.1500015, -5.25, 0.5, 5.1500015, -3.25, 0.75, -2.0999985, -3, 0.5, -3.8499985, -0.75, 0.5, -3.8499985, -1, 0.5, -51.85, -28.5, 0.5, -51.85, -28.5, 0.5, 7.4000015, -9.25, 0.5, 7.6500015, 0.5, 0.5, -3.8499985, 0.75, 0.5, -4.5999985, 10.5, 0.5, -2.8499985, 8.75, 0.5, -2.8499985, 9, 0.5, -1.5999985, 13.5, 0.5, -1.5999985, 10.75, 0.5, -4.3499985, 13.75, 0.5, -0.8499985, 28.5, 0.5, -0.8499985, 28.5, 0.5, -51.85, 3.75, 0.5, -1.5999985, 3.5, 0.5, -2.8499985, -3, 0.5, -1.5999985, 3.25, 0.5, -1.5999985, 3.5, 0.5, -0.099998474, -4.75, 0.5, 5.9000015, 2.5, 0.5, 6.1500015, 4, 0.5, 0.15000153, 2.5, 0.75, 6.9000015, 0.75, 1.75, 6.9000015, 0.75, 1.75, 13.650002, 2.5, 0.75, 13.650002, 13.5, 0.5, 0.15000153, 2.5, 0.75, 14.150002, 28.5, 0.5, 14.150002, -5.5, 5.25, 6.9000015, -5.5, 5.25, 13.650002, -28.5, 0.5, 13.150002, -9.25, 0.5, 12.900002, -9, 0.5, 14.650002, -28.5, 0.5, 47.15, -7, 0.5, 47.15, -6.75, 0.5, 14.650002, 2.5, 0.5, 14.650002, 0.5, 0.5, 14.650002, 0.5, 0.5, 47.15, 28.5, 0.5, 47.15, -6, 0.5, 15.400002, -6.25, 0.5, 14.650002, -4.75, 0.5, 14.650002, -5, 0.5, 15.400002)
+polygons = [PackedInt32Array(0, 2, 1), PackedInt32Array(3, 2, 4), PackedInt32Array(4, 2, 5), PackedInt32Array(7, 6, 5), PackedInt32Array(2, 0, 5), PackedInt32Array(5, 0, 9), PackedInt32Array(5, 9, 7), PackedInt32Array(7, 9, 8), PackedInt32Array(0, 10, 9), PackedInt32Array(11, 6, 12), PackedInt32Array(12, 6, 7), PackedInt32Array(14, 13, 15), PackedInt32Array(15, 13, 16), PackedInt32Array(17, 12, 7), PackedInt32Array(16, 13, 17), PackedInt32Array(19, 18, 16), PackedInt32Array(16, 17, 19), PackedInt32Array(19, 17, 20), PackedInt32Array(20, 17, 7), PackedInt32Array(22, 14, 21), PackedInt32Array(21, 14, 15), PackedInt32Array(3, 4, 23), PackedInt32Array(22, 21, 24), PackedInt32Array(24, 21, 25), PackedInt32Array(24, 25, 23), PackedInt32Array(23, 25, 27), PackedInt32Array(23, 27, 3), PackedInt32Array(3, 27, 26), PackedInt32Array(25, 28, 27), PackedInt32Array(29, 27, 28), PackedInt32Array(32, 31, 29), PackedInt32Array(29, 31, 30), PackedInt32Array(32, 33, 34), PackedInt32Array(34, 33, 19), PackedInt32Array(34, 19, 35), PackedInt32Array(29, 28, 32), PackedInt32Array(32, 28, 33), PackedInt32Array(18, 19, 33), PackedInt32Array(37, 36, 31), PackedInt32Array(31, 36, 30), PackedInt32Array(39, 38, 10), PackedInt32Array(10, 38, 9), PackedInt32Array(39, 40, 38), PackedInt32Array(38, 40, 41), PackedInt32Array(41, 40, 42), PackedInt32Array(40, 43, 42), PackedInt32Array(44, 34, 35), PackedInt32Array(46, 45, 44), PackedInt32Array(35, 47, 44), PackedInt32Array(44, 47, 46), PackedInt32Array(49, 48, 43), PackedInt32Array(43, 48, 42), PackedInt32Array(50, 45, 51), PackedInt32Array(51, 45, 46), PackedInt32Array(51, 46, 42), PackedInt32Array(42, 48, 51)]
 
 [node name="Level1" type="Node3D"]
+script = ExtResource("1_m7ahb")
 
-[node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.54999995)
-size = Vector3(2.3, 0.001, 4.6)
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_m7ahb")
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="."]
-transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, -2, 1.8499999, -6.55)
-size = Vector3(4, 0.001, 10)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
 
 [node name="SourceController" parent="." instance=ExtResource("1_g2h75")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
 
-[node name="floor" type="StaticBody3D" parent="."]
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_dwgg1")
 
-[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.54999995)
-mesh = SubResource("ArrayMesh_g2h75")
-skeleton = NodePath("../..")
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="NavigationRegion3D"]
+use_collision = true
 
-[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.54999995)
-shape = SubResource("ConcavePolygonShape3D_g2h75")
+[node name="CSGBox3D" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.35)
+use_collision = true
+size = Vector3(58, 0.001, 100)
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
-transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, -2, 1.8499999, -6.55)
+[node name="CSGBox3D2" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0.95000005, -3.699)
+size = Vector3(9, 6.9, 0.4)
 
-[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_wwpf4")
+[node name="CSGBox3D3" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 0.95000005, -0.6989999)
+size = Vector3(9, 6.9, 0.4)
 
-[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
-mesh = SubResource("ArrayMesh_m7ahb")
-skeleton = NodePath("../..")
+[node name="CSGBox3D4" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.4999995, 0.95000005, 10.301001)
+size = Vector3(9, 6.9, 0.4)
 
-[node name="StaticBody3D2" type="StaticBody3D" parent="."]
-transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 1, 1.8499998, -12.55)
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.0100102, -0.26785612, -2.35)
+polygon = PackedVector2Array(-3, 0, 0, 1, 5, 3, 5, 0)
 
-[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
-shape = SubResource("ConcavePolygonShape3D_wwpf4")
+[node name="CSGPolygon3D2" type="CSGPolygon3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 7.406001, -2, 0, 13.9624)
+polygon = PackedVector2Array(-4, 5, 5, 0, -13, -11)
 
-[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="StaticBody3D2"]
-mesh = SubResource("ArrayMesh_m7ahb")
-skeleton = NodePath("../..")
+[node name="Enemy" parent="." instance=ExtResource("2_wwpf4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+
+[node name="Enemy2" parent="." instance=ExtResource("2_wwpf4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1, -19)
+
+[node name="Enemy3" parent="." instance=ExtResource("2_wwpf4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, -19)
+
+[node name="Enemy4" parent="." instance=ExtResource("2_wwpf4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -13)
+
+[node name="Enemy5" parent="." instance=ExtResource("2_wwpf4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1, -4)

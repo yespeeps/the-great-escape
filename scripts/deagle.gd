@@ -1,10 +1,12 @@
 extends Node3D
+signal Shot()
 
 var player : Player
 @onready var audiostreamplayer = $AudioStreamPlayer3D
 @onready var anim = $AnimationPlayer
 
 const RAY_LENGTH = 9999
+const damage = 33.4
 
 func _ready() -> void:
 	player = owner
@@ -28,7 +30,8 @@ func shoot():
 		collider.apply_impulse(player.camera.project_ray_normal(mousepos) * 15, get_collision().normal)
 
 	if collider.is_in_group('enemies'):
-		print('enemy')
+		collider.health -= damage
+		print(collider.health)
 	
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed('shoot'):

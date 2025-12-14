@@ -13,10 +13,6 @@ height = 1.00625
 [node name="SourceController" type="CharacterBody3D"]
 script = ExtResource("1_7ftjh")
 jump_velocity = 8.13
-sprint_speed = 9.385
-ground_accel = 6.47
-ground_decel = 2.45
-ground_friction = 6.72
 
 [node name="StandingCollider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -60,4 +56,7 @@ one_shot = true
 [node name="ceiling" type="RayCast3D" parent="."]
 target_position = Vector3(0, 2.045, 0)
 
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+
+[connection signal="Shot" from="Head/Camera3D/ViewModel/Deagle" to="." method="_on_deagle_shot"]
 [connection signal="timeout" from="Exit Timer" to="." method="_on_exit_timer_timeout"]

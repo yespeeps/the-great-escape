@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cohiqpndtgam"]
+[gd_scene load_steps=7 format=3 uid="uid://u7gpcslf1xmy"]
 
 [ext_resource type="Script" uid="uid://duyn7n8acye6n" path="res://scripts/enemy.gd" id="1_7p1mj"]
 [ext_resource type="AudioStream" uid="uid://bh2oy7ji64b2q" path="res://assets/take-him-down-hl2-metro-cop_1ZRAHBx.mp3" id="2_md0e3"]
+[ext_resource type="AudioStream" uid="uid://dqgm8tyjtaby3" path="res://assets/combine-hit-7.mp3" id="3_4ra3w"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7p1mj"]
 albedo_color = Color(0.69599843, 0.3515015, 0.35889414, 1)
@@ -22,5 +23,9 @@ shape = SubResource("CylinderShape3D_7p1mj")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 
-[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+[node name="FoundAudio" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("2_md0e3")
+
+[node name="DiedAudio" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_4ra3w")
+volume_db = 29.515

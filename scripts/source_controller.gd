@@ -4,6 +4,7 @@ class_name Player extends CharacterBody3D
 @onready var camera = $Head/Camera3D
 @onready var standing_collider = $StandingCollider
 @onready var crouching_collider = $CrouchingCollider
+@onready var stream_player = $Head/Camera3D/ViewModel/Deagle/AudioStreamPlayer3D
 
 @onready var ceiling = $ceiling
 @onready var right = $WorldModel/right
@@ -26,7 +27,7 @@ class_name Player extends CharacterBody3D
 
 # Ground movement settings
 var walk_speed := 7
-var sprint_speed := 900.0
+var sprint_speed := 14.0
 var crouch_speed := 3.5
 var ground_accel := 7.0
 var ground_decel := 4.0
@@ -53,7 +54,7 @@ var previous_wall_jump_position : float
 var wall_count : int 
 var space_state : PhysicsDirectSpaceState3D
 
-enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING, SLIDING}
+enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING, SLIDING, LEDGEGRABBING}
 var current_state : States:
 	set = set_state
 
@@ -70,10 +71,12 @@ func create_rays():
 
 	var ray_left = PhysicsRayQueryParameters3D.create(origin, origin - distance * global_basis.x)
 	var ray_right = PhysicsRayQueryParameters3D.create(origin, origin + distance * global_basis.x)
+	var ray_forward = PhysicsRayQueryParameters3D.create(Vector3(origin.x, origin.y + 0.4, origin.z), origin + distance * -global_basis.z) 
 
 	return {
 		'ray_left': ray_left,
-		'ray_right': ray_right
+		'ray_right': ray_right,
+		'ray_forward': ray_forward
 	}
 				
 func _unhandled_input(event: InputEvent) -> void:
@@ -104,8 +107,7 @@ func raycast_get_collision():
 		return result_left
 	elif result_right:
 		return result_right
-	else:
-		return null
+
 
 	# This is the dictionary that it will return.
 	#    position: Vector2 # point in world space for collision
@@ -115,6 +117,14 @@ func raycast_get_collision():
 	#    rid: RID # RID it collided against
 	#    shape: int # shape index of collider
 	#    metadata: Variant() # metadata of collider
+
+func raycast_get_forward():
+	var result_forward = space_state.intersect_ray(create_rays().ray_forward)
+
+	if result_forward:
+		return result_forward
+	else: 
+		return null
 
 func _handle_air_physics(delta : float) -> void:
 	self.velocity.y -= gravity * delta
@@ -176,6 +186,9 @@ func wall_jump() -> void:
 func jump():
 	self.velocity.y += jump_velocity
 
+func ledge_grab():
+	self.velocity += raycast_get_forward().collider.global_basis.y * 5
+
 func set_state(new_state):
 	var previous_state = current_state
 	current_state = new_state
@@ -196,7 +209,6 @@ func set_state(new_state):
 	return previous_state
 
 func _physics_process(delta: float) -> void:
-	print(get_move_speed())
 	space_state = get_world_3d().direct_space_state
 	input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
 	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
@@ -225,6 +237,9 @@ func _physics_process(delta: float) -> void:
 				current_state = States.RUNNING
 			elif raycast_get_collision() and can_wall_run:
 				current_state = States.WALLRUNNING
+
+			if raycast_get_forward() and Input.is_action_just_pressed('jump'):
+				current_state = States.LEDGEGRABBING
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'): #and !wish_dir.normalized().dot(raycast_get_collision().normal) <= 0.6:
 				current_state = States.WALLJUMPING
@@ -244,6 +259,11 @@ func _physics_process(delta: float) -> void:
 				current_state = States.CROUCHING
 			elif not is_on_floor():
 				current_state = States.FALLING
+		States.LEDGEGRABBING:
+			if is_on_floor():
+				current_state = States.RUNNING
+			else:
+				current_state = States.FALLING
 
 	## Movement
 	if current_state in [States.RUNNING, States.CROUCHING]:
@@ -258,6 +278,8 @@ func _physics_process(delta: float) -> void:
 		wall_jump()
 	elif current_state == States.SLIDING:
 		_handle_slide_physics(delta)
+	elif current_state == States.LEDGEGRABBING:
+		ledge_grab()
 
 	## Camera Movement
 	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING]: 
@@ -286,7 +308,3 @@ func _physics_process(delta: float) -> void:
 		crouching_collider.disabled = false
 
 	move_and_slide()
-
-
-
-	

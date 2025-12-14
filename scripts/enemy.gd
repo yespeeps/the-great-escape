@@ -1,10 +1,12 @@
 extends CharacterBody3D
 
 @onready var agent = $NavigationAgent3D
-@onready var audio = $AudioStreamPlayer3D
-var speed := 3.0
+@onready var found_audio = $FoundAudio
+@onready var died_audio = $DiedAudio
+@export var speed := 3.0
+@export var health := 100.0
 
-enum States {WALKING, IDLE}
+enum States {WALKING, IDLE, DEAD}
 var current_state := States.IDLE:
 	set = set_state
 
@@ -13,9 +15,16 @@ func set_state(new_state):
 	current_state = new_state
 
 	if new_state == States.WALKING:
-		audio.play()
+		found_audio.play()
+	
+	if new_state == States.DEAD:
+		died_audio.play()
 
 func _physics_process(delta: float) -> void:
+	if health <= 0:
+		died_audio.play()
+		queue_free()
+
 	if not is_on_floor():
 		velocity.y -= 19 * delta
 	else:
@@ -31,13 +40,18 @@ func _physics_process(delta: float) -> void:
 		States.IDLE:
 			if next_location_relative.length() <= idle_distance:
 				current_state = States.WALKING
+
+			if health <= 0:
+				current_state = States.DEAD
 		States.WALKING:
 			if next_location_relative.length() >= idle_distance:
 				current_state = States.IDLE
+			if health <= 0:
+				current_state = States.DEAD
 
 	if current_state == States.WALKING:
 		velocity = velocity.move_toward(new_velocity, 0.25)
-	else:
+	elif current_state == States.IDLE:
 		velocity = Vector3()
 	move_and_slide()
 

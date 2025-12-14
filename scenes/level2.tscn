@@ -1,6 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bs7m31nucachl"]
+[gd_scene load_steps=8 format=3 uid="uid://bs7m31nucachl"]
 
+[ext_resource type="Script" path="res://scripts/level_1.gd" id="1_4038r"]
 [ext_resource type="PackedScene" uid="uid://5negh75idjb0" path="res://scenes/source_controller.tscn" id="1_d6fun"]
+[ext_resource type="PackedScene" uid="uid://u7gpcslf1xmy" path="res://scenes/enemy.tscn" id="2_if4l3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_if4l3"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -15,7 +17,13 @@ sky = SubResource("Sky_4038r")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="NavigationMesh" id="NavigationMesh_4038r"]
+vertices = PackedVector3Array(-14.25, 0.52, -7.75, -14.25, 0.52, -7, -4.5, 0.52, -7, -15, 0.52, -8, -4.5, 0.52, -19, -15, 0.52, -19, -2.5, 0.52, -7, -2.25, 0.71, -6.5, 1, 0.71, -6.5, 1.25, 0.52, -7, 3.25, 0.52, -19, 3.25, 0.52, -7, 11.5, 0.52, -7, 11.75, 0.52, -8, 13.75, 0.52, -7.75, 13.75, 0.52, 5.25, 15, 0.52, 5.5, 15, 0.52, -19, -15.25, 16.52, -5.75, -15.25, 16.52, -7, -16, 16.52, -7, -16, 16.52, 6.25, -4.25, 16.52, 6, -4.25, 16.52, -5.75, -3.25, 31.52, -7, -3.25, 31.52, 6.25, 12.75, 31.52, 6.25, 12.75, 31.52, -7, -2.25, 0.71, -6.25, -2, 0.52, 1.5, 2.5, 0.52, 1.5, 1.25, 0.52, -5.75, -0.024999619, 0.52, -4.5249996, 2.75, 0.52, -5.75, -2.5, 0.52, -5.75, -14.25, 0.52, -5.75, -14.25, 0.52, 1.75, -8.75, 0.52, 1.75, 1, 6.52, 1.75, 2.75, 6.52, 1.5, 2.5, 6.52, -5.75, -14.25, 6.52, 6, 1, 6.52, 6, -14.25, 6.52, -5.75, 8.75, 6.51, 1.5, 9, 6.51, 6, 11.5, 6.51, 6, 11.5, 6.51, -5.75, 11.5, 0.52, 1.75, 11.5, 0.52, -5.75, -6.75, 1.16, 6, -6.75, 1.16, 2.5, -8.75, 0.73999995, 2.5, -8.083333, 0.84999996, 3.666666, -10.125, 0.52, 2.3125, -14.25, 0.52, 6, -10.5, 0.52, 6, -9.25, 0.64, 6, -9.019964, 0.69, 4.5079613, 8, 4.23, 5.75, 8, 4.23, 2.75, -5.2749996, 1.42, 5.9750004, -5.2749996, 1.42, 2.5249996, -4.5249996, 1.63, 4.4750004, 13.5, 0.52, 7.25, 15, 0.52, 19, 11.5, 0.52, 7.25, 11.25, 0.52, 7.75, -8.75, 0.52, 7.75, -8.75, 0.73999995, 7.25, -15, 0.52, 7.25, -15, 0.52, 19)
+polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(0, 3, 2), PackedInt32Array(2, 3, 5), PackedInt32Array(2, 5, 4), PackedInt32Array(7, 6, 8), PackedInt32Array(8, 6, 9), PackedInt32Array(9, 6, 4), PackedInt32Array(9, 4, 10), PackedInt32Array(6, 2, 4), PackedInt32Array(10, 11, 9), PackedInt32Array(13, 12, 11), PackedInt32Array(15, 14, 16), PackedInt32Array(16, 14, 17), PackedInt32Array(11, 10, 13), PackedInt32Array(13, 10, 17), PackedInt32Array(17, 14, 13), PackedInt32Array(19, 18, 20), PackedInt32Array(20, 18, 21), PackedInt32Array(23, 22, 18), PackedInt32Array(18, 22, 21), PackedInt32Array(27, 26, 24), PackedInt32Array(24, 26, 25), PackedInt32Array(30, 32, 31), PackedInt32Array(31, 32, 8), PackedInt32Array(8, 28, 7), PackedInt32Array(28, 32, 29), PackedInt32Array(29, 32, 30), PackedInt32Array(32, 28, 8), PackedInt32Array(31, 33, 30), PackedInt32Array(34, 28, 29), PackedInt32Array(36, 35, 37), PackedInt32Array(37, 35, 29), PackedInt32Array(29, 35, 34), PackedInt32Array(40, 39, 38), PackedInt32Array(38, 42, 41), PackedInt32Array(40, 38, 43), PackedInt32Array(43, 38, 41), PackedInt32Array(45, 44, 46), PackedInt32Array(46, 44, 47), PackedInt32Array(39, 40, 44), PackedInt32Array(44, 40, 47), PackedInt32Array(33, 49, 30), PackedInt32Array(30, 49, 48), PackedInt32Array(52, 51, 53), PackedInt32Array(53, 51, 50), PackedInt32Array(52, 54, 37), PackedInt32Array(37, 54, 36), PackedInt32Array(57, 58, 50), PackedInt32Array(50, 58, 53), PackedInt32Array(53, 58, 52), PackedInt32Array(52, 58, 54), PackedInt32Array(54, 55, 36), PackedInt32Array(55, 54, 56), PackedInt32Array(56, 58, 57), PackedInt32Array(58, 56, 54), PackedInt32Array(62, 63, 51), PackedInt32Array(51, 63, 50), PackedInt32Array(50, 63, 61), PackedInt32Array(61, 63, 59), PackedInt32Array(59, 63, 60), PackedInt32Array(60, 63, 62), PackedInt32Array(15, 16, 64), PackedInt32Array(64, 16, 65), PackedInt32Array(66, 64, 67), PackedInt32Array(67, 64, 65), PackedInt32Array(69, 68, 70), PackedInt32Array(70, 68, 71), PackedInt32Array(67, 65, 68), PackedInt32Array(68, 65, 71)]
+cell_height = 0.01
+
 [node name="Level2" type="Node3D"]
+script = ExtResource("1_4038r")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_2k3dv")
@@ -24,58 +32,74 @@ environment = SubResource("Environment_2k3dv")
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 1.25, 4.3301272, -2.1650634)
 shadow_enabled = true
 
-[node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4995, 0)
-use_collision = true
-size = Vector3(31, 0.001, 39)
-
 [node name="SourceController" parent="." instance=ExtResource("1_d6fun")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1, 1)
 
-[node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
+[node name="Enemy" parent="." instance=ExtResource("2_if4l3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 2, -3)
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_4038r")
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="NavigationRegion3D"]
 use_collision = true
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 8.5, -6.4995)
+[node name="CSGBox3D2" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 15.5, -6.4995)
 use_collision = true
-size = Vector3(27, 16, 0.001)
+size = Vector3(27, 30, 0.001)
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 8.5, 6.5005)
+[node name="CSGBox3D3" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 16, 6.5005)
 use_collision = true
-size = Vector3(27, 16, 0.001)
+size = Vector3(27, 31, 0.001)
 
-[node name="CSGBox3D4" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.5, 8, -0.30000025)
+[node name="CSGBox3D11" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.5, 24, 0.0005002022)
 use_collision = true
-size = Vector3(14, 15, 1)
+size = Vector3(16, 15, 0.001)
 
-[node name="CSGBox3D5" type="CSGBox3D" parent="CSGCombiner3D"]
+[node name="CSGBox3D4" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.5, 16, -0.30000025)
+use_collision = true
+size = Vector3(14, 31, 1)
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -15.5, 8, -0.29999903)
 use_collision = true
 size = Vector3(14, 15, 1)
 
-[node name="CSGBox3D6" type="CSGBox3D" parent="CSGCombiner3D"]
-transform = Transform3D(-4.3711385e-08, 1, -4.371139e-08, 0, -4.371139e-08, -1, -1, -4.371139e-08, 0, -1.9999995, 16, -0.29999962)
+[node name="CSGBox3D6" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(-4.3711385e-08, 1, -4.371139e-08, 0, -4.371139e-08, -1, -1, -4.371139e-08, 0, -10, 16, -0.29999927)
 use_collision = true
-size = Vector3(14, 29, 1)
+size = Vector3(14, 13, 1)
 
-[node name="CSGBox3D8" type="CSGBox3D" parent="CSGCombiner3D"]
+[node name="CSGBox3D10" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(-4.3711385e-08, 1, -4.371139e-08, 0, -4.371139e-08, -1, -1, -4.371139e-08, 0, 4.5000005, 31, -0.29999992)
+use_collision = true
+size = Vector3(14, 16, 1)
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(-4.3711385e-08, 1, -4.371139e-08, 0, -4.371139e-08, -1, -1, -4.371139e-08, 0, -1.9999999, 6, -0.29999962)
 use_collision = true
 size = Vector3(14, 29, 1)
 
-[node name="CSGBox3D7" type="CSGBox3D" parent="CSGCombiner3D"]
+[node name="CSGBox3D7" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.70000005, 3.595205, -6.6669927)
 operation = 2
 size = Vector3(4.4, 5.8, 0.4)
 
-[node name="CSGBox3D9" type="CSGBox3D" parent="CSGCombiner3D"]
+[node name="CSGBox3D9" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5.5, 4.15)
 operation = 2
 size = Vector3(7, 2, 4.3)
 
-[node name="CSGPolygon3D" type="CSGPolygon3D" parent="CSGCombiner3D"]
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 7)
 polygon = PackedVector2Array(-4, -1, 20, 4, 18, -1)
 depth = 5.0
+
+[node name="CSGBox3D" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4995, 0)
+use_collision = true
+size = Vector3(31, 0.001, 39)

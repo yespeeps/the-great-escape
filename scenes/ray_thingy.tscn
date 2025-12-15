@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://b4voe6gilsfqm"]
+
+[node name="RayThingy" type="CSGBox3D"]

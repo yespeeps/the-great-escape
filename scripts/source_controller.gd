@@ -47,14 +47,31 @@ var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
 var lerp_speed := 10.0
 
 var can_slide := true
-var can_wall_run := true
-var slide_cooldown := 0.0
+var slide_cooldown := 1.0
 var slide_impulse := 1.5
+
+var can_wall_run := true
+
+var can_ledge_grab := true
+var ledge_grab_cooldown := 1.0
+
+const head_bobbing_sprinting_speed = 22.0
+const head_bobbing_walking_speed = 14.0
+const head_bobbing_crouching_speed = 10.0
+
+const head_bobbing_crouching_intensity = 0.1
+const head_bobbing_sprinting_intensity = 0.2
+const head_bobbing_walking_intensity = 0.05
+
+var head_bobbing_vector := Vector2.ZERO
+var head_bobbing_index := 0.0
+var head_bobbing_current_intensity
+
 var previous_wall_jump_position : float
 var wall_count : int 
 var space_state : PhysicsDirectSpaceState3D
 
-enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING, SLIDING, LEDGEGRABBING}
+enum States {RUNNING, CROUCHING, JUMPING, FALLING, WALLRUNNING, WALLJUMPING, SLIDING, LEDGEGRABBING, WALKING}
 var current_state : States:
 	set = set_state
 
@@ -76,7 +93,7 @@ func create_rays():
 	return {
 		'ray_left': ray_left,
 		'ray_right': ray_right,
-		'ray_forward': ray_forward
+		'ray_forward': ray_forward,
 	}
 				
 func _unhandled_input(event: InputEvent) -> void:
@@ -107,7 +124,6 @@ func raycast_get_collision():
 		return result_left
 	elif result_right:
 		return result_right
-
 
 	# This is the dictionary that it will return.
 	#    position: Vector2 # point in world space for collision
@@ -171,7 +187,6 @@ func _handle_ground_physics(delta : float) -> void:
 	self.velocity *= new_speed
 
 func _handle_slide_physics(delta: float):
-	#just added the friction code
 	var control = max(self.velocity.length(), ground_decel)
 	var drop = control * ground_friction/5 * delta
 	var new_speed = max(self.velocity.length() - drop, 0.0)
@@ -187,7 +202,7 @@ func jump():
 	self.velocity.y += jump_velocity
 
 func ledge_grab():
-	self.velocity += raycast_get_forward().collider.global_basis.y * 5
+	self.velocity.y += 5
 
 func set_state(new_state):
 	var previous_state = current_state
@@ -196,7 +211,6 @@ func set_state(new_state):
 	if new_state == States.SLIDING:
 		self.velocity += wish_dir * slide_impulse
 	
-	# TODO: add count like in parkour reborn or like in titanfall 2
 	if previous_state == States.WALLJUMPING or (new_state == States.FALLING and previous_state == States.WALLRUNNING):
 		previous_wall_jump_position = self.position.y
 		wall_count += 1
@@ -205,6 +219,12 @@ func set_state(new_state):
 		can_slide = false
 		await get_tree().create_timer(slide_cooldown).timeout
 		can_slide = true
+
+	if current_state == States.LEDGEGRABBING:
+		can_ledge_grab = false
+		await get_tree().create_timer(ledge_grab_cooldown).timeout
+		can_ledge_grab = true
+
 
 	return previous_state
 
@@ -230,6 +250,27 @@ func _physics_process(delta: float) -> void:
 
 			if ceiling.is_colliding():
 				current_state = States.CROUCHING
+
+			if Input.is_action_just_released('sprint'):
+				current_state = States.WALKING
+		States.WALKING:
+			if Input.is_action_just_pressed('jump'):
+				current_state = States.JUMPING
+			elif not is_on_floor():
+				current_state = States.FALLING
+			elif Input.is_action_pressed('crouch') and !Input.is_action_pressed('sprint'):
+				current_state = States.CROUCHING
+			elif Input.is_action_pressed('crouch') and Input.is_action_pressed('sprint'):
+				if can_slide:
+					current_state = States.SLIDING
+				else:
+					current_state = States.CROUCHING
+
+			if ceiling.is_colliding():
+				current_state = States.CROUCHING
+			
+			if Input.is_action_pressed('sprint'):
+				current_state = States.RUNNING
 		States.JUMPING:
 			current_state = States.FALLING
 		States.FALLING:
@@ -238,7 +279,7 @@ func _physics_process(delta: float) -> void:
 			elif raycast_get_collision() and can_wall_run:
 				current_state = States.WALLRUNNING
 
-			if raycast_get_forward() and Input.is_action_just_pressed('jump'):
+			if raycast_get_forward() and Input.is_action_just_pressed('jump') and can_ledge_grab:
 				current_state = States.LEDGEGRABBING
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'): #and !wish_dir.normalized().dot(raycast_get_collision().normal) <= 0.6:
@@ -263,10 +304,11 @@ func _physics_process(delta: float) -> void:
 			if is_on_floor():
 				current_state = States.RUNNING
 			else:
+				print(camera.rotation.z)
 				current_state = States.FALLING
 
 	## Movement
-	if current_state in [States.RUNNING, States.CROUCHING]:
+	if current_state in [States.RUNNING, States.CROUCHING, States.WALKING]:
 		_handle_ground_physics(delta)
 	elif current_state == States.JUMPING:
 		jump()
@@ -282,7 +324,7 @@ func _physics_process(delta: float) -> void:
 		ledge_grab()
 
 	## Camera Movement
-	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING]: 
+	if current_state in [States.WALLJUMPING, States.FALLING, States.WALKING, States.RUNNING]: 
 		camera.position.y = lerp(camera.position.y, 0.0, lerp_speed * delta)
 		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
 	elif current_state == States.CROUCHING:
@@ -298,6 +340,8 @@ func _physics_process(delta: float) -> void:
 	elif current_state == States.SLIDING:
 		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
 		camera.position.y = lerp(camera.position.y, -0.9, lerp_speed * delta * 2)
+	elif current_state == States.LEDGEGRABBING:
+		camera.rotation.z = lerp(camera.rotation.z, 0.2, delta * lerp_speed * 3)
 
 	## Collider Setting
 	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:

@@ -8,6 +8,21 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2sgss"]
 albedo_texture = ExtResource("2_04bdq")
 
+[sub_resource type="Animation" id="Animation_2sgss"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
 [sub_resource type="Animation" id="Animation_04bdq"]
 resource_name = "shoot"
 length = 0.3795
@@ -22,21 +37,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 0.18946446, 0.3415101),
 "update": 0,
 "values": [Vector3(0, 0, 0), Vector3(0, 0, 0.7853982), Vector3(0, 0, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_2sgss"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MeshInstance3D:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, 0, 0)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_gtxth"]
@@ -61,3 +61,8 @@ stream = ExtResource("3_hp115")
 libraries = {
 &"": SubResource("AnimationLibrary_gtxth")
 }
+
+[node name="FireRate" type="Timer" parent="."]
+wait_time = 0.4
+
+[connection signal="timeout" from="FireRate" to="." method="_on_fire_rate_timeout"]

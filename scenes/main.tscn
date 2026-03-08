@@ -28,7 +28,6 @@ shadow_enabled = true
 [node name="SourceController" parent="." instance=ExtResource("2_sugp2")]
 wall_jump_up_force = 8.0
 wall_jump_side_force = 9.11
-sprint_speed = 22.05
 
 [node name="RigidBody3D" parent="." instance=ExtResource("2_0wfyh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 4)
@@ -60,3 +59,6 @@ size = Vector3(9, 3, 0.3)
 transform = Transform3D(-1.0000001, -4.371139e-08, 2.980232e-08, -2.9802322e-08, 3.5527137e-15, -1.0000001, 4.3711395e-08, -1, 0, 0.3499994, 1.5999998, -20.664104)
 use_collision = true
 size = Vector3(9, 3, 0.3)
+
+[node name="RigidBody3D2" parent="." instance=ExtResource("2_0wfyh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1, -7)

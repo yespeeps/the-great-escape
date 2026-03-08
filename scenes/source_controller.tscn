@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://5negh75idjb0"]
+[gd_scene load_steps=18 format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
 [ext_resource type="PackedScene" uid="uid://ixuvfofo38me" path="res://scenes/deagle.tscn" id="2_3pmoh"]
 [ext_resource type="Script" uid="uid://r1qbkx8nh02b" path="res://scripts/reticle.gd" id="3_mwcp7"]
+[ext_resource type="Texture2D" uid="uid://dajmreixqkgcv" path="res://assets/Run.png" id="4_p4b6d"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
@@ -10,6 +11,82 @@
 height = 1.00625
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_7ftjh"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jnw8r"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oiiwm"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rsd00"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eqp4y"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eynor"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i7xm4"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0nqkx"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cbbmy"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eeyhy"]
+atlas = ExtResource("4_p4b6d")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1n8y2"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jnw8r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oiiwm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rsd00")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eqp4y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eynor")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i7xm4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0nqkx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cbbmy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eeyhy")
+}],
+"loop": true,
+"name": &"new_animation",
+"speed": 5.0
+}]
 
 [node name="SourceController" type="CharacterBody3D"]
 script = ExtResource("1_7ftjh")
@@ -43,16 +120,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.79, 0)
 [node name="Camera3D" type="Camera3D" parent="Head"]
 unique_name_in_owner = true
 cull_mask = 1048573
-fov = 90.0
+fov = 105.6
 
 [node name="ViewModel" type="Node3D" parent="Head/Camera3D"]
 
-[node name="Deagle" parent="Head/Camera3D/ViewModel" instance=ExtResource("2_3pmoh")]
-transform = Transform3D(-1.3769087e-08, 0, 0.315, 0, 0.315, 0, -0.315, 0, -1.3769087e-08, 0.25199997, -0.53, -0.945)
-
-[node name="AimRay" type="RayCast3D" parent="Head/Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.39)
-target_position = Vector3(0, 0, -9999)
+[node name="Deagle" parent="Head/Camera3D/ViewModel" groups=["player"] instance=ExtResource("2_3pmoh")]
+transform = Transform3D(-1.3769087e-08, 0, 0.315, 0, 0.315, 0, -0.315, 0, -1.3769087e-08, 0.25199997, -0.63, -0.945)
 
 [node name="Exit Timer" type="Timer" parent="."]
 wait_time = 0.3
@@ -85,5 +158,10 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_mwcp7")
 
-[connection signal="Shot" from="Head/Camera3D/ViewModel/Deagle" to="." method="_on_deagle_shot"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Control"]
+position = Vector2(286, 99)
+sprite_frames = SubResource("SpriteFrames_1n8y2")
+animation = &"new_animation"
+autoplay = "new_animation"
+
 [connection signal="timeout" from="Exit Timer" to="." method="_on_exit_timer_timeout"]

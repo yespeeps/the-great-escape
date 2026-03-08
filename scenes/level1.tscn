@@ -1,8 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://bwh2ryygpvbyx"]
+[gd_scene load_steps=10 format=3 uid="uid://bwh2ryygpvbyx"]
 
 [ext_resource type="PackedScene" uid="uid://5negh75idjb0" path="res://scenes/source_controller.tscn" id="1_g2h75"]
-[ext_resource type="Script" path="res://scripts/level_1.gd" id="1_m7ahb"]
+[ext_resource type="Script" uid="uid://blmda22hygnny" path="res://scripts/level_1.gd" id="1_m7ahb"]
 [ext_resource type="PackedScene" uid="uid://u7gpcslf1xmy" path="res://scenes/enemy.tscn" id="2_wwpf4"]
+[ext_resource type="Material" uid="uid://dafkqh2w3vfmr" path="res://resources/grid_black_08.tres" id="3_ru4tf"]
+[ext_resource type="PackedScene" uid="uid://c11uqyip5egpj" path="res://scenes/box.tscn" id="4_dwgg1"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_g2h75"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -44,26 +46,32 @@ use_collision = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.35)
 use_collision = true
 size = Vector3(58, 0.001, 100)
+material = ExtResource("3_ru4tf")
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0.95000005, -3.699)
 size = Vector3(9, 6.9, 0.4)
+material = ExtResource("3_ru4tf")
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 0.95000005, -0.6989999)
 size = Vector3(9, 6.9, 0.4)
+material = ExtResource("3_ru4tf")
 
 [node name="CSGBox3D4" type="CSGBox3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.4999995, 0.95000005, 10.301001)
 size = Vector3(9, 6.9, 0.4)
+material = ExtResource("3_ru4tf")
 
 [node name="CSGPolygon3D" type="CSGPolygon3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.0100102, -0.26785612, -2.35)
 polygon = PackedVector2Array(-3, 0, 0, 1, 5, 3, 5, 0)
+material = ExtResource("3_ru4tf")
 
 [node name="CSGPolygon3D2" type="CSGPolygon3D" parent="NavigationRegion3D/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 7.406001, -2, 0, 13.9624)
 polygon = PackedVector2Array(-4, 5, 5, 0, -13, -11)
+material = ExtResource("3_ru4tf")
 
 [node name="Enemy" parent="." instance=ExtResource("2_wwpf4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
@@ -79,3 +87,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -13)
 
 [node name="Enemy5" parent="." instance=ExtResource("2_wwpf4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1, -4)
+
+[node name="RigidBody3D" parent="." instance=ExtResource("4_dwgg1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1, 4)
+
+[node name="RigidBody3D2" parent="." instance=ExtResource("4_dwgg1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -13)

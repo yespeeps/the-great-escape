@@ -5,6 +5,8 @@ class_name Player extends CharacterBody3D
 @onready var standing_collider = $StandingCollider
 @onready var crouching_collider = $CrouchingCollider
 @onready var stream_player = $Head/Camera3D/ViewModel/Deagle/AudioStreamPlayer3D
+@onready var aim_ray = $Head/Camera3D/AimRay
+@onready var head = $Head
 
 @onready var ceiling = $ceiling
 @onready var right = $WorldModel/right
@@ -47,10 +49,11 @@ var gravity = ProjectSettings.get_setting('physics/3d/default_gravity')
 var lerp_speed := 10.0
 
 var can_slide := true
-var slide_cooldown := 1.0
+var slide_cooldown := 0.0
 var slide_impulse := 1.5
 
 var can_wall_run := true
+var wall_run_cooldown := 0.1
 
 var can_ledge_grab := true
 var ledge_grab_cooldown := 1.0
@@ -67,7 +70,7 @@ var head_bobbing_vector := Vector2.ZERO
 var head_bobbing_index := 0.0
 var head_bobbing_current_intensity
 
-var previous_wall_jump_position : float
+var previous_wall
 var wall_count : int 
 var space_state : PhysicsDirectSpaceState3D
 
@@ -89,11 +92,13 @@ func create_rays():
 	var ray_left = PhysicsRayQueryParameters3D.create(origin, origin - distance * global_basis.x)
 	var ray_right = PhysicsRayQueryParameters3D.create(origin, origin + distance * global_basis.x)
 	var ray_forward = PhysicsRayQueryParameters3D.create(Vector3(origin.x, origin.y + 0.4, origin.z), origin + distance * -global_basis.z) 
+	var ray_down = PhysicsRayQueryParameters3D.create(origin, origin - 0.1 * global_basis.y)
 
 	return {
 		'ray_left': ray_left,
 		'ray_right': ray_right,
 		'ray_forward': ray_forward,
+		'ray_down': ray_down
 	}
 				
 func _unhandled_input(event: InputEvent) -> void:
@@ -134,9 +139,15 @@ func raycast_get_collision():
 	#    shape: int # shape index of collider
 	#    metadata: Variant() # metadata of collider
 
+func raycast_get_down():
+	var result_down = space_state.intersect_ray(create_rays().ray_down)
+	if result_down:
+		return result_down
+	else:
+		return null
+
 func raycast_get_forward():
 	var result_forward = space_state.intersect_ray(create_rays().ray_forward)
-
 	if result_forward:
 		return result_forward
 	else: 
@@ -187,16 +198,43 @@ func _handle_ground_physics(delta : float) -> void:
 	self.velocity *= new_speed
 
 func _handle_slide_physics(delta: float):
-	var control = max(self.velocity.length(), ground_decel)
-	var drop = control * ground_friction/5 * delta
-	var new_speed = max(self.velocity.length() - drop, 0.0)
-	if self.velocity.length() > 0:
-		new_speed /= self.velocity.length()
-	self.velocity *= new_speed
+
+	if raycast_get_down():
+		var n = raycast_get_down().normal
+		var slope_angle = (rad_to_deg(acos(n.dot(Vector3(0,-1,0)))) -180)*-1
+		if slope_angle > 39:
+			var slide_dir = n.slide(Vector3(0,-1,0))
+			velocity += slide_dir
+			velocity.y -= slope_angle
+
+			var control = max(self.velocity.length(), ground_decel)
+			var drop = control * ground_friction/5 * delta
+			var new_speed = max(self.velocity.length() - drop, 0.0)
+			if self.velocity.length() > 0:
+				new_speed /= self.velocity.length()
+			self.velocity *= new_speed
+
+			# self.rotation.y = atan2(slide_dir.x,slide_dir.y+slide_dir.z)
+			# self.rotation.x = deg_to_rad(slope_angle)
+		else:
+			var control = max(self.velocity.length(), ground_decel)
+			var drop = control * ground_friction/5 * delta
+			var new_speed = max(self.velocity.length() - drop, 0.0)
+			if self.velocity.length() > 0:
+				new_speed /= self.velocity.length()
+			self.velocity *= new_speed
+	else:
+		var control = max(self.velocity.length(), ground_decel)
+		var drop = control * ground_friction/5 * delta
+		var new_speed = max(self.velocity.length() - drop, 0.0)
+		if self.velocity.length() > 0:
+			new_speed /= self.velocity.length()
+		self.velocity *= new_speed
 
 func wall_jump() -> void:
 	if raycast_get_collision():
-		self.velocity += raycast_get_collision().normal * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
+		if raycast_get_collision().normal:
+			self.velocity += raycast_get_collision().normal * wall_jump_side_force + self.global_transform.basis.y * wall_jump_up_force
 
 func jump():
 	self.velocity.y += jump_velocity
@@ -212,8 +250,10 @@ func set_state(new_state):
 		self.velocity += wish_dir * slide_impulse
 	
 	if previous_state == States.WALLJUMPING or (new_state == States.FALLING and previous_state == States.WALLRUNNING):
-		previous_wall_jump_position = self.position.y
 		wall_count += 1
+		can_wall_run = false
+		await get_tree().create_timer(wall_run_cooldown).timeout
+		can_wall_run = true
 
 	if previous_state == States.SLIDING:
 		can_slide = false
@@ -224,7 +264,6 @@ func set_state(new_state):
 		can_ledge_grab = false
 		await get_tree().create_timer(ledge_grab_cooldown).timeout
 		can_ledge_grab = true
-
 
 	return previous_state
 
@@ -250,27 +289,6 @@ func _physics_process(delta: float) -> void:
 
 			if ceiling.is_colliding():
 				current_state = States.CROUCHING
-
-			if Input.is_action_just_released('sprint'):
-				current_state = States.WALKING
-		States.WALKING:
-			if Input.is_action_just_pressed('jump'):
-				current_state = States.JUMPING
-			elif not is_on_floor():
-				current_state = States.FALLING
-			elif Input.is_action_pressed('crouch') and !Input.is_action_pressed('sprint'):
-				current_state = States.CROUCHING
-			elif Input.is_action_pressed('crouch') and Input.is_action_pressed('sprint'):
-				if can_slide:
-					current_state = States.SLIDING
-				else:
-					current_state = States.CROUCHING
-
-			if ceiling.is_colliding():
-				current_state = States.CROUCHING
-			
-			if Input.is_action_pressed('sprint'):
-				current_state = States.RUNNING
 		States.JUMPING:
 			current_state = States.FALLING
 		States.FALLING:
@@ -284,7 +302,7 @@ func _physics_process(delta: float) -> void:
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'): #and !wish_dir.normalized().dot(raycast_get_collision().normal) <= 0.6:
 				current_state = States.WALLJUMPING
-			elif !raycast_get_collision() or Input.is_action_just_pressed('crouch') or is_on_floor() or wish_dir.normalized().dot(raycast_get_collision().normal) >= 0.9:
+			elif !raycast_get_collision() or is_on_floor() or wish_dir.normalized().dot(raycast_get_collision().normal) >= 0.9:
 				current_state = States.FALLING
 		States.WALLJUMPING:
 			current_state = States.FALLING
@@ -307,7 +325,7 @@ func _physics_process(delta: float) -> void:
 				print(camera.rotation.z)
 				current_state = States.FALLING
 
-	## Movement
+	## movement
 	if current_state in [States.RUNNING, States.CROUCHING, States.WALKING]:
 		_handle_ground_physics(delta)
 	elif current_state == States.JUMPING:
@@ -323,32 +341,56 @@ func _physics_process(delta: float) -> void:
 	elif current_state == States.LEDGEGRABBING:
 		ledge_grab()
 
-	## Camera Movement
-	if current_state in [States.WALLJUMPING, States.FALLING, States.WALKING, States.RUNNING]: 
-		camera.position.y = lerp(camera.position.y, 0.0, lerp_speed * delta)
+	## headbob
+	if get_move_speed() == sprint_speed:
+		head_bobbing_current_intensity = head_bobbing_sprinting_intensity
+		head_bobbing_index += head_bobbing_sprinting_speed * delta
+	elif get_move_speed() == walk_speed:
+		head_bobbing_current_intensity = head_bobbing_walking_intensity
+		head_bobbing_index += head_bobbing_walking_speed * delta
+	else:
+		head_bobbing_current_intensity = head_bobbing_crouching_intensity
+		head_bobbing_index += head_bobbing_crouching_speed * delta
+
+	## camera movement
+	if !(current_state in [States.WALLRUNNING, States.LEDGEGRABBING]):
 		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
-	elif current_state == States.CROUCHING:
-		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
-		camera.position.y = lerp(camera.position.y, -0.5, lerp_speed * delta * 1.5)
-	elif current_state == States.WALLRUNNING:
+	if !(current_state in [States.CROUCHING, States.SLIDING]):
 		camera.position.y = lerp(camera.position.y, 0.0, lerp_speed * delta)
+
+	if current_state == States.WALLRUNNING:
 		var target_pos = 0.2
 		if left.is_colliding():
 			camera.rotation.z = lerp(camera.rotation.z, -target_pos, delta * lerp_speed)
 		elif right.is_colliding():
 			camera.rotation.z = lerp(camera.rotation.z, target_pos, delta * lerp_speed)
 	elif current_state == States.SLIDING:
-		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
 		camera.position.y = lerp(camera.position.y, -0.9, lerp_speed * delta * 2)
+	elif current_state == States.CROUCHING:
+		camera.position.y = lerp(camera.position.y, -0.5, lerp_speed * delta * 1.5)
 	elif current_state == States.LEDGEGRABBING:
 		camera.rotation.z = lerp(camera.rotation.z, 0.2, delta * lerp_speed * 3)
 
-	## Collider Setting
+	if current_state in [States.RUNNING, States.CROUCHING] and input_dir: 
+		head_bobbing_vector.y = sin(head_bobbing_index)
+		head_bobbing_vector.x = sin(head_bobbing_index/2) + 0.5
+
+		camera.position.y = lerp(camera.position.y, head_bobbing_vector.y*(head_bobbing_current_intensity/2.0), delta * lerp_speed)
+		camera.position.x = lerp(camera.position.x, head_bobbing_vector.x*(head_bobbing_current_intensity), delta * lerp_speed)
+
+		if Input.is_action_pressed('input_left'):
+			camera.rotation.z = lerp(camera.rotation.z, +0.05, delta * lerp_speed/2)
+		elif Input.is_action_pressed('input_right'):
+			camera.rotation.z = lerp(camera.rotation.z, -0.05, delta * lerp_speed/2)
+	
+	## collider setting
 	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:
 		standing_collider.disabled = false
 		crouching_collider.disabled = true
 	else:
 		standing_collider.disabled = true
 		crouching_collider.disabled = false
+	
+	## animations
 
 	move_and_slide()

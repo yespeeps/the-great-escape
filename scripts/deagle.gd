@@ -5,7 +5,7 @@ var player : Player
 @onready var audiostreamplayer = $AudioStreamPlayer3D
 @onready var anim = $AnimationPlayer
 
-const RAY_LENGTH = 9999
+const RAY_LENGTH = 99999
 const damage = 33.4
 
 func _ready() -> void:
@@ -13,7 +13,7 @@ func _ready() -> void:
 
 func get_collision():
 	var cam = player.camera
-	var mousepos = player.get_viewport().get_mouse_position()
+	var mousepos = player.get_viewport().get_size()/2
 
 	var origin = cam.project_ray_origin(mousepos)
 	var end = origin + cam.project_ray_normal(mousepos) * RAY_LENGTH

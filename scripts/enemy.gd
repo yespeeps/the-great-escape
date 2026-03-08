@@ -5,6 +5,7 @@ extends CharacterBody3D
 @onready var died_audio = $DiedAudio
 @onready var took_damage_audio = $TookDamageAudio
 @onready var mesh = $MeshInstance3D
+@onready var vision_area : Area3D = $VisionArea  
 var dead_material = preload("res://resources/dead_enemy.tres")
 
 @export var speed := 3.0
@@ -33,6 +34,8 @@ func set_state(new_state):
 		mesh.material_override = dead_material
 
 func _physics_process(delta: float) -> void:
+	if health <= 0:
+		current_state = States.DEAD
 
 	if not is_on_floor():
 		velocity.y -= 19 * delta
@@ -46,19 +49,11 @@ func _physics_process(delta: float) -> void:
 
 	var idle_distance = 5
 
-	match (current_state):
-		States.IDLE:
-			if next_location_relative.length() <= idle_distance:
-				current_state = States.WALKING
-
-			if health <= 0:
-				current_state = States.DEAD
-		States.WALKING:
-			if next_location_relative.length() >= idle_distance:
-				current_state = States.IDLE
-			if health <= 0:
-				current_state = States.DEAD
-
+	# match (current_state):
+	# 	States.IDLE:
+	# 		if next_location_relative.length() <= idle_distance:
+	# 			current_state = States.WALKING
+		
 	if current_state == States.WALKING:
 		velocity = velocity.move_toward(new_velocity, 0.25)
 	elif current_state == States.IDLE:

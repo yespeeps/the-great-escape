@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cqkfffaa4ht7o"]
+
+[ext_resource type="Texture2D" uid="uid://buj44gijm4rju" path="res://trenchbroom/textures/Industrial_exterior_v2_Cooling_tower.png" id="1_4r4f0"]
+
+[resource]
+albedo_texture = ExtResource("1_4r4f0")
+metallic_specular = 0.0
+texture_filter = 2

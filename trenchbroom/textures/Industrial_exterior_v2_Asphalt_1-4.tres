@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://hif645qe6r53"]
+
+[ext_resource type="Texture2D" uid="uid://cibufsuoqw4wb" path="res://trenchbroom/textures/Industrial_exterior_v2_Asphalt_1-4.png" id="1_1mrjk"]
+
+[resource]
+albedo_texture = ExtResource("1_1mrjk")
+metallic_specular = 0.0
+texture_filter = 2

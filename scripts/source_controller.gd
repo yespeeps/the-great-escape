@@ -241,7 +241,7 @@ func _handle_dive_physics(delta: float):
 	velocity.y -= gravity * 1.5 * delta
 
 func dive():
-	var previous_velocity_magnitude = velocity.length()
+	# var previous_velocity_magnitude = velocity.length()
 	var previous_vertical_velocity = velocity.y
 
 	if previous_vertical_velocity > 0:
@@ -251,16 +251,14 @@ func dive():
 
 	var dive_vertical_impulse = 3.0
 	var dive_horizontal_impulse = 15
-	var dive_cap = 30.0
+	# var dive_cap = 30.0
 
-	if previous_velocity_magnitude < dive_cap:
-		velocity += (Vector3(velocity.x, 0, velocity.z).normalized() + wish_dir)/2 * dive_horizontal_impulse
+	velocity += wish_dir * dive_horizontal_impulse
 
 	if velocity.y > 0:
 		velocity.y += dive_vertical_impulse
 	elif velocity.y < dive_vertical_impulse / 2:
 		velocity.y += dive_vertical_impulse * 2
-
 
 func wall_jump() -> void:
 	if raycast_get_collision():
@@ -341,8 +339,8 @@ func _physics_process(delta: float) -> void:
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'):
 				if raycast_get_collision():
-					if !wish_dir.normalized().dot(raycast_get_collision().normal) <= -0.2:
-						current_state = States.WALLJUMPING
+					# if !wish_dir.normalized().dot(raycast_get_collision().normal) <= -0.2:
+					current_state = States.WALLJUMPING
 			elif !raycast_get_collision() or is_on_floor(): #or wish_dir.normalized().dot(raycast_get_collision().normal) >= 0.9:
 				current_state = States.FALLING
 		States.WALLJUMPING:

@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bdesmplp4oaec"]
+
+[ext_resource type="Texture2D" uid="uid://bf2l3q07an4jk" path="res://trenchbroom/textures/Industrial_exterior_v2_Barrel_3.png" id="1_caiqh"]
+
+[resource]
+albedo_texture = ExtResource("1_caiqh")
+metallic_specular = 0.0
+texture_filter = 2

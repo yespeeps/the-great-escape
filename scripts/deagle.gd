@@ -13,7 +13,8 @@ func _ready() -> void:
 
 func get_collision():
 	var cam = player.camera
-	var mousepos = player.get_viewport().get_size()/2
+	var mousepos = get_viewport().get_mouse_position() # player.get_viewport().get_size()/2
+	print(mousepos)
 
 	var origin = cam.project_ray_origin(mousepos)
 	var end = origin + cam.project_ray_normal(mousepos) * RAY_LENGTH

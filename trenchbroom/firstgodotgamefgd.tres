@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FuncGodotFGDFile" format=3 uid="uid://dxr21wmh7yo18"]
+
+[ext_resource type="Script" uid="uid://drlmgulwbjwqu" path="res://addons/func_godot/src/fgd/func_godot_fgd_file.gd" id="1_orvnb"]
+[ext_resource type="Resource" uid="uid://crgpdahjaj" path="res://addons/func_godot/fgd/func_godot_fgd.tres" id="1_wuxyp"]
+
+[resource]
+script = ExtResource("1_orvnb")
+fgd_name = "FirstGodotGame"
+base_fgd_files = Array[Resource]([ExtResource("1_wuxyp")])
+metadata/_custom_type_script = "uid://drlmgulwbjwqu"

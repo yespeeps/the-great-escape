@@ -5,7 +5,6 @@ extends CharacterBody3D
 @onready var died_audio = $DiedAudio
 @onready var took_damage_audio = $TookDamageAudio
 @onready var mesh = $MeshInstance3D
-@onready var vision_area : Area3D = $VisionArea  
 var dead_material = preload("res://resources/dead_enemy.tres")
 
 @export var speed := 3.0

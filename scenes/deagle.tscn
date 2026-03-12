@@ -1,12 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://ixuvfofo38me"]
+[gd_scene format=3 uid="uid://ixuvfofo38me"]
 
 [ext_resource type="ArrayMesh" uid="uid://j4lvghohm0sp" path="res://assets/deagle.obj" id="1_8wwpp"]
 [ext_resource type="Script" uid="uid://bdf26ia4d8ey8" path="res://scripts/deagle.gd" id="1_nabpo"]
-[ext_resource type="Texture2D" uid="uid://dp16qblmpgbah" path="res://assets/internal_ground_ao_texture.jpeg" id="2_04bdq"]
 [ext_resource type="AudioStream" uid="uid://g3kod2bnmv0" path="res://assets/half-life-9mm-pistol.mp3" id="3_hp115"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2sgss"]
-albedo_texture = ExtResource("2_04bdq")
 
 [sub_resource type="Animation" id="Animation_2sgss"]
 length = 0.001
@@ -45,24 +41,20 @@ _data = {
 &"shoot": SubResource("Animation_04bdq")
 }
 
-[node name="Deagle" type="Node3D"]
-transform = Transform3D(-1.3769087e-08, 0, 0.315, 0, 0.315, 0, -0.315, 0, -1.3769087e-08, 0.25199997, 1.26, -0.945)
+[node name="Deagle" type="Node3D" unique_id=1946413900]
 script = ExtResource("1_nabpo")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1922174998]
 transform = Transform3D(0.9999999, 0, 0, 0, 0.9999999, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_2sgss")
 mesh = ExtResource("1_8wwpp")
 
-[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=1952980913]
 stream = ExtResource("3_hp115")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_gtxth")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=245201116]
+libraries/ = SubResource("AnimationLibrary_gtxth")
 
-[node name="FireRate" type="Timer" parent="."]
+[node name="FireRate" type="Timer" parent="." unique_id=1107546799]
 wait_time = 0.4
 
 [connection signal="timeout" from="FireRate" to="." method="_on_fire_rate_timeout"]

@@ -8,11 +8,15 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="New Game Project"
-run/main_scene="uid://bwh2ryygpvbyx"
-config/features=PackedStringArray("4.5", "Forward Plus")
+run/main_scene="uid://kxvn4ayxu4ej"
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
 [display]
@@ -20,10 +24,11 @@ config/icon="res://icon.svg"
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/mode=2
+window/stretch/mode="viewport"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/visibility_shortcut/plugin.cfg")
+enabled=PackedStringArray("res://addons/func_godot/plugin.cfg", "res://addons/visibility_shortcut/plugin.cfg")
 
 [global_group]
 
@@ -83,4 +88,4 @@ alt_shoot={
 
 common/physics_ticks_per_second=120
 3d/physics_engine="Jolt Physics"
-3d/default_gravity=19.478
+3d/default_gravity=22.0

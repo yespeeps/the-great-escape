@@ -5,7 +5,6 @@
 [ext_resource type="Material" uid="uid://hif645qe6r53" path="res://trenchbroom/textures/Industrial_exterior_v2_Asphalt_1-4.tres" id="3_mdsev"]
 [ext_resource type="PackedScene" uid="uid://5negh75idjb0" path="res://scenes/source_controller.tscn" id="4_7qo45"]
 [ext_resource type="Texture2D" uid="uid://cyg2snr1w5xw5" path="res://addons/func_godot/textures/default_texture.png" id="5_mdsev"]
-[ext_resource type="PackedScene" uid="uid://c11uqyip5egpj" path="res://scenes/box.tscn" id="6_nqlp2"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_snglc"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -141,9 +140,3 @@ shape = SubResource("ConvexPolygonShape3D_5t7ve")
 
 [node name="entity_0_brush_10_collision_shape" type="CollisionShape3D" parent="FuncGodotMap/entity_0_worldspawn" unique_id=677867320]
 shape = SubResource("ConvexPolygonShape3D_wkld6")
-
-[node name="RigidBody3D" parent="." unique_id=1974755481 instance=ExtResource("6_nqlp2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1, 9)
-
-[node name="RigidBody3D2" parent="." unique_id=414317205 instance=ExtResource("6_nqlp2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 1, 6)

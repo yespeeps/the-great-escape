@@ -19,7 +19,7 @@ var right_ray
 
 # Air movement settings. Need to tweak these to get the feeling dialed in.
 @export var air_cap := 0.45 # Can surf steeper ramps if this is higher, makes it easier to stick and bhop
-@export var air_accel := 800.0
+@export var air_accel := 20.0
 @export var air_move_speed := 10.0
 
 @export var wall_jump_up_force := 5.0
@@ -32,7 +32,7 @@ var walk_speed := 7
 var sprint_speed := 14.0
 var crouch_speed := 3.5
 var ground_accel := 7.0
-var ground_decel := 4.0
+var ground_decel := 6.0
 var ground_friction := 5.0
 
 @export var health := 100.0
@@ -50,7 +50,7 @@ var lerp_speed := 10.0
 
 var can_slide := true
 var slide_cooldown := 0.0
-var slide_impulse := 1.5
+var slide_impulse := 1.1
 var previous_direction
 
 var can_wall_run := true
@@ -60,7 +60,7 @@ var can_ledge_grab := true
 var ledge_grab_cooldown := 1.0
 
 var can_dive = true
-var dive_cooldown := 3.0
+var dive_cooldown := 2.0
 
 var wall_run_timer := 0.0
 var slide_timer := 0.0
@@ -185,7 +185,7 @@ func _handle_wallrun_physics(delta : float) -> void:
 		self.velocity.y -= gravity * delta * 5
 	else:
 		self.velocity.y -= gravity/3 * delta
-	self.velocity += -raycast_get_collision().normal * delta
+	self.velocity += -raycast_get_collision().normal * delta * 50
 
 func get_move_speed():
 	if Input.is_action_pressed('sprint') and !Input.is_action_pressed('crouch'):
@@ -250,8 +250,12 @@ func _handle_dive_physics(delta: float):
 	velocity.y -= gravity * 2.0 * delta
 
 func dive():
-	# var previous_velocity_magnitude = velocity.length()
+	var previous_velocity_magnitude = velocity.length()
+	var previous_velocity_direction = velocity.normalized()
 	var previous_vertical_velocity = velocity.y
+
+	velocity.x = 0
+	velocity.z = 0
 
 	if previous_vertical_velocity > 0:
 		velocity.y = 0
@@ -262,7 +266,11 @@ func dive():
 	var dive_horizontal_impulse = 10
 	# var dive_cap = 30.0
 
-	velocity += wish_dir * dive_horizontal_impulse
+	if wish_dir:
+		velocity += wish_dir * (previous_velocity_magnitude + dive_horizontal_impulse)
+	else:
+		velocity += previous_velocity_direction * (previous_velocity_magnitude + dive_horizontal_impulse)
+
 
 	if velocity.y > 0:
 		velocity.y += dive_vertical_impulse
@@ -287,7 +295,7 @@ func set_state(new_state):
 	if new_state == States.SLIDING:
 		slide_timer = slide_cooldown
 		previous_direction = wish_dir
-		self.velocity += wish_dir * slide_impulse
+		self.velocity *= slide_impulse
 	
 	if previous_state == States.WALLJUMPING or (new_state == States.FALLING and previous_state == States.WALLRUNNING):
 		wall_count += 1
@@ -367,6 +375,8 @@ func _physics_process(delta: float) -> void:
 				current_state = States.CROUCHING
 			elif not is_on_floor():
 				current_state = States.FALLING
+			elif is_on_floor() and Input.is_action_just_pressed('jump'):
+				current_state = States.JUMPING
 		States.LEDGEGRABBING:
 			if is_on_floor():
 				current_state = States.RUNNING
@@ -441,9 +451,9 @@ func _physics_process(delta: float) -> void:
 		camera.position.x = lerp(camera.position.x, head_bobbing_vector.x*(head_bobbing_current_intensity), delta * lerp_speed)
 
 		if Input.is_action_pressed('input_left'):
-			camera.rotation.z = lerp(camera.rotation.z, +0.05, delta * lerp_speed/4)
+			camera.rotation.z = lerp(camera.rotation.z, +0.1, delta * lerp_speed/4)
 		elif Input.is_action_pressed('input_right'):
-			camera.rotation.z = lerp(camera.rotation.z, -0.05, delta * lerp_speed/4)
+			camera.rotation.z = lerp(camera.rotation.z, -0.1, delta * lerp_speed/4)
 	
 	## collider setting
 	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:

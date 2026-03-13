@@ -7,7 +7,7 @@ extends CharacterBody3D
 @onready var mesh = $MeshInstance3D
 var dead_material = preload("res://resources/dead_enemy.tres")
 
-@export var speed := 3.0
+@export var speed := 100.0
 
 @export var health := 100.0:
 	set(current_health):
@@ -17,8 +17,8 @@ var dead_material = preload("res://resources/dead_enemy.tres")
 		if health < previous_health and current_state != States.DEAD:
 			took_damage_audio.play()
 
-enum States {WALKING, IDLE, DEAD}
-var current_state := States.IDLE:
+enum States {IDLE, WALKING, DEAD}
+var current_state : States:
 	set = set_state
 
 func set_state(new_state):
@@ -48,17 +48,20 @@ func _physics_process(delta: float) -> void:
 
 	var idle_distance = 5
 
-	# match (current_state):
-	# 	States.IDLE:
-	# 		if next_location_relative.length() <= idle_distance:
-	# 			current_state = States.WALKING
+	match (current_state):
+		States.IDLE:
+			if next_location_relative.length() <= idle_distance:
+				current_state = States.WALKING
+		States.WALKING:
+			if next_location_relative.length() > idle_distance:
+				current_state = States.IDLE
 		
-	if current_state == States.WALKING:
-		velocity = velocity.move_toward(new_velocity, 0.25)
-	elif current_state == States.IDLE:
-		velocity = Vector3()
-	elif current_state == States.DEAD:
-		velocity = Vector3()
+	# if current_state == States.WALKING:
+	velocity = velocity.move_toward(new_velocity, 0.25)
+	# elif current_state == States.IDLE:
+	# 	velocity = Vector3()
+	# elif current_state == States.DEAD:
+	# 	velocity = Vector3()
 	move_and_slide()
 
 func update_target_position(target_position):

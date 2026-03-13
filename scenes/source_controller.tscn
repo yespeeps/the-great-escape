@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://5negh75idjb0"]
+[gd_scene format=3 uid="uid://5negh75idjb0"]
 
 [ext_resource type="Script" uid="uid://vhsl84hbwf08" path="res://scripts/source_controller.gd" id="1_7ftjh"]
 [ext_resource type="PackedScene" uid="uid://ixuvfofo38me" path="res://scenes/deagle.tscn" id="2_3pmoh"]
@@ -7,59 +7,59 @@
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n4ypa"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_eynor"]
-height = 1.00625
+height = 1.0
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_7ftjh"]
 
-[node name="SourceController" type="CharacterBody3D"]
+[node name="SourceController" type="CharacterBody3D" unique_id=2035058075]
 script = ExtResource("1_7ftjh")
 jump_velocity = 8.13
 
-[node name="StandingCollider" type="CollisionShape3D" parent="."]
+[node name="StandingCollider" type="CollisionShape3D" parent="." unique_id=907308083]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_n4ypa")
 
-[node name="CrouchingCollider" type="CollisionShape3D" parent="."]
+[node name="CrouchingCollider" type="CollisionShape3D" parent="." unique_id=1334537965]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4906249, 0)
 shape = SubResource("CapsuleShape3D_eynor")
 
-[node name="WorldModel" type="Node3D" parent="."]
+[node name="WorldModel" type="Node3D" parent="." unique_id=1543165475]
 unique_name_in_owner = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WorldModel"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WorldModel" unique_id=1694147965]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_7ftjh")
 
-[node name="left" type="RayCast3D" parent="WorldModel"]
+[node name="left" type="RayCast3D" parent="WorldModel" unique_id=1054781755]
 transform = Transform3D(-4.371139e-08, 0.3, 0, -1, -1.3113417e-08, 0, 0, 0, 1, -0.3505272, 1.239296, 0)
 
-[node name="right" type="RayCast3D" parent="WorldModel"]
+[node name="right" type="RayCast3D" parent="WorldModel" unique_id=1603771556]
 transform = Transform3D(-4.371139e-08, -0.3, 0, 1, -1.3113417e-08, 0, 0, 0, 1, 0.32947287, 1.239296, 0)
 
-[node name="Head" type="Node3D" parent="."]
+[node name="Head" type="Node3D" parent="." unique_id=869107974]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.79, 0)
 
-[node name="Camera3D" type="Camera3D" parent="Head"]
+[node name="Camera3D" type="Camera3D" parent="Head" unique_id=687166837]
 unique_name_in_owner = true
 cull_mask = 1048573
 fov = 105.6
 
-[node name="ViewModel" type="Node3D" parent="Head/Camera3D"]
+[node name="ViewModel" type="Node3D" parent="Head/Camera3D" unique_id=31788399]
 
-[node name="Deagle" parent="Head/Camera3D/ViewModel" groups=["player"] instance=ExtResource("2_3pmoh")]
+[node name="Deagle" parent="Head/Camera3D/ViewModel" unique_id=17724185 groups=["player"] instance=ExtResource("2_3pmoh")]
 transform = Transform3D(-1.3769087e-08, 0, 0.315, 0, 0.315, 0, -0.315, 0, -1.3769087e-08, 0.25199997, -0.63, -0.945)
 
-[node name="Exit Timer" type="Timer" parent="."]
+[node name="Exit Timer" type="Timer" parent="." unique_id=1991109322]
 wait_time = 0.3
 one_shot = true
 
-[node name="ceiling" type="RayCast3D" parent="."]
+[node name="ceiling" type="RayCast3D" parent="." unique_id=1493095444]
 target_position = Vector3(0, 2.045, 0)
 
-[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=1979551099]
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." unique_id=1578238859]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,7 +69,7 @@ grow_vertical = 2
 mouse_filter = 1
 metadata/_edit_lock_ = true
 
-[node name="CenterContainer" type="CenterContainer" parent="Control"]
+[node name="CenterContainer" type="CenterContainer" parent="Control" unique_id=470003541]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

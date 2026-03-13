@@ -19,7 +19,7 @@ var right_ray
 
 # Air movement settings. Need to tweak these to get the feeling dialed in.
 @export var air_cap := 0.45 # Can surf steeper ramps if this is higher, makes it easier to stick and bhop
-@export var air_accel := 20.0
+@export var air_accel := 800.0
 @export var air_move_speed := 10.0
 
 @export var wall_jump_up_force := 5.0
@@ -51,6 +51,7 @@ var lerp_speed := 10.0
 var can_slide := true
 var slide_cooldown := 0.0
 var slide_impulse := 1.5
+var previous_direction
 
 var can_wall_run := true
 var wall_run_cooldown := 0.1
@@ -59,6 +60,12 @@ var can_ledge_grab := true
 var ledge_grab_cooldown := 1.0
 
 var can_dive = true
+var dive_cooldown := 3.0
+
+var wall_run_timer := 0.0
+var slide_timer := 0.0
+var ledge_timer := 0.0
+var dive_timer := 0.0
 
 const head_bobbing_sprinting_speed = 22.0
 const head_bobbing_walking_speed = 14.0
@@ -94,7 +101,7 @@ func create_rays():
 	var ray_left = PhysicsRayQueryParameters3D.create(origin, origin - distance * global_basis.x)
 	var ray_right = PhysicsRayQueryParameters3D.create(origin, origin + distance * global_basis.x)
 	var ray_forward = PhysicsRayQueryParameters3D.create(Vector3(origin.x, origin.y + 0.4, origin.z), origin + distance * -global_basis.z) 
-	var ray_down = PhysicsRayQueryParameters3D.create(origin, origin - 0.1 * global_basis.y)
+	var ray_down = PhysicsRayQueryParameters3D.create(origin, origin - 0.3 * global_basis.y)
 
 	return {
 		'ray_left': ray_left,
@@ -204,14 +211,15 @@ func _handle_ground_physics(delta : float) -> void:
 	self.velocity *= new_speed
 
 func _handle_slide_physics(delta: float):
-
 	if raycast_get_down():
 		var n = raycast_get_down().normal
-		var slope_angle = (rad_to_deg(acos(n.dot(Vector3(0,-1,0)))) -180)*-1
-		if slope_angle > 39:
+		var slope_angle = rad_to_deg(acos(n.dot(Vector3.UP)))
+		print(slope_angle)
+		if slope_angle > 13:
 			var slide_dir = n.slide(Vector3(0,-1,0))
-			velocity += slide_dir
-			velocity.y -= slope_angle
+			print(slide_dir)
+			velocity += slide_dir * delta * 50
+			velocity.y -= slope_angle / 2
 
 			var control = max(self.velocity.length(), ground_decel)
 			var drop = control * ground_friction/5 * delta
@@ -223,22 +231,23 @@ func _handle_slide_physics(delta: float):
 			# self.rotation.y = atan2(slide_dir.x,slide_dir.y+slide_dir.z)
 			# self.rotation.x = deg_to_rad(slope_angle)
 		else:
+			velocity.y -= 39
 			var control = max(self.velocity.length(), ground_decel)
 			var drop = control * ground_friction/5 * delta
 			var new_speed = max(self.velocity.length() - drop, 0.0)
 			if self.velocity.length() > 0:
 				new_speed /= self.velocity.length()
 			self.velocity *= new_speed
-	else:
-		var control = max(self.velocity.length(), ground_decel)
-		var drop = control * ground_friction/5 * delta
-		var new_speed = max(self.velocity.length() - drop, 0.0)
-		if self.velocity.length() > 0:
-			new_speed /= self.velocity.length()
-		self.velocity *= new_speed
+	# else:
+	# 	var control = max(self.velocity.length(), ground_decel)
+	# 	var drop = control * ground_friction/5 * delta
+	# 	var new_speed = max(self.velocity.length() - drop, 0.0)
+	# 	if self.velocity.length() > 0:
+	# 		new_speed /= self.velocity.length()
+	# 	self.velocity *= new_speed
 
 func _handle_dive_physics(delta: float):
-	velocity.y -= gravity * 1.5 * delta
+	velocity.y -= gravity * 2.0 * delta
 
 func dive():
 	# var previous_velocity_magnitude = velocity.length()
@@ -250,7 +259,7 @@ func dive():
 		velocity.y /= 2
 
 	var dive_vertical_impulse = 3.0
-	var dive_horizontal_impulse = 15
+	var dive_horizontal_impulse = 10
 	# var dive_cap = 30.0
 
 	velocity += wish_dir * dive_horizontal_impulse
@@ -276,29 +285,25 @@ func set_state(new_state):
 	current_state = new_state
 
 	if new_state == States.SLIDING:
+		slide_timer = slide_cooldown
+		previous_direction = wish_dir
 		self.velocity += wish_dir * slide_impulse
 	
 	if previous_state == States.WALLJUMPING or (new_state == States.FALLING and previous_state == States.WALLRUNNING):
 		wall_count += 1
-		can_wall_run = false
-		await get_tree().create_timer(wall_run_cooldown).timeout
-		can_wall_run = true
+		wall_run_timer = wall_run_cooldown
 
 	if previous_state == States.SLIDING:
-		can_slide = false
-		await get_tree().create_timer(slide_cooldown).timeout
-		can_slide = true
+		slide_timer = slide_cooldown
 
 	if current_state == States.LEDGEGRABBING:
 		can_ledge_grab = false
 		await get_tree().create_timer(ledge_grab_cooldown).timeout
 		can_ledge_grab = true
 
-	if new_state == States.RUNNING:
-		can_dive = true
+	if new_state == States.DIVING:
+		dive_timer = dive_cooldown
 
-	if new_state == States.DIVING: 
-		can_dive = false
 	
 	return previous_state
 
@@ -308,6 +313,11 @@ func _physics_process(delta: float) -> void:
 	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
 
 	## State Machine
+	wall_run_timer = max(wall_run_timer - delta, 0.0)
+	slide_timer = max(slide_timer - delta, 0.0)
+	ledge_timer = max(ledge_timer - delta, 0.0)
+	dive_timer = max(dive_timer - delta, 0.0)
+
 	match (current_state):
 		States.RUNNING:
 			if Input.is_action_just_pressed('jump'):
@@ -317,7 +327,7 @@ func _physics_process(delta: float) -> void:
 			elif Input.is_action_pressed('crouch') and !Input.is_action_pressed('sprint'):
 				current_state = States.CROUCHING
 			elif Input.is_action_pressed('crouch') and Input.is_action_pressed('sprint'):
-				if can_slide:
+				if slide_timer <= 0.0:
 					current_state = States.SLIDING
 				else:
 					current_state = States.CROUCHING
@@ -329,9 +339,9 @@ func _physics_process(delta: float) -> void:
 		States.FALLING:
 			if is_on_floor():
 				current_state = States.RUNNING
-			elif raycast_get_collision() and can_wall_run:
+			elif raycast_get_collision() and wall_run_timer <= 0.0:
 				current_state = States.WALLRUNNING
-			elif Input.is_action_just_pressed('crouch') and can_dive:
+			elif Input.is_action_just_pressed('crouch') and dive_timer <= 0:
 				current_state = States.INITIAL_DIVE
 
 			# if raycast_get_forward() and Input.is_action_just_pressed('jump') and can_ledge_grab:
@@ -339,8 +349,8 @@ func _physics_process(delta: float) -> void:
 		States.WALLRUNNING:
 			if Input.is_action_just_pressed('jump'):
 				if raycast_get_collision():
-					# if !wish_dir.normalized().dot(raycast_get_collision().normal) <= -0.2:
-					current_state = States.WALLJUMPING
+					if !wish_dir.normalized().dot(raycast_get_collision().normal) <= -0.2:
+						current_state = States.WALLJUMPING
 			elif !raycast_get_collision() or is_on_floor(): #or wish_dir.normalized().dot(raycast_get_collision().normal) >= 0.9:
 				current_state = States.FALLING
 		States.WALLJUMPING:
@@ -368,8 +378,9 @@ func _physics_process(delta: float) -> void:
 		States.DIVING:
 			if is_on_floor():
 				current_state = States.RUNNING
-			elif raycast_get_collision() and can_wall_run:
+			elif raycast_get_collision() and wall_run_timer <= 0:
 				current_state = States.WALLRUNNING
+
 
 	## movement
 	if current_state in [States.RUNNING, States.CROUCHING, States.WALKING]:

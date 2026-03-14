@@ -28,9 +28,9 @@ var right_ray
 @export var wall_run_side_speed := 120.0
 
 # Ground movement settings
-var walk_speed := 7
+var walk_speed := 7.0
 var sprint_speed := 14.0
-var crouch_speed := 3.5
+var crouch_speed := 5.0
 var ground_accel := 7.0
 var ground_decel := 6.0
 var ground_friction := 5.0
@@ -266,10 +266,10 @@ func dive():
 	var dive_horizontal_impulse = 10
 	# var dive_cap = 30.0
 
-	if wish_dir:
-		velocity += wish_dir * (previous_velocity_magnitude + dive_horizontal_impulse)
-	else:
-		velocity += previous_velocity_direction * (previous_velocity_magnitude + dive_horizontal_impulse)
+	# if wish_dir:
+	# 	velocity += wish_dir * (previous_velocity_magnitude + dive_horizontal_impulse)
+	# else:
+	velocity += previous_velocity_direction * (previous_velocity_magnitude + dive_horizontal_impulse)
 
 
 	if velocity.y > 0:
@@ -315,17 +315,86 @@ func set_state(new_state):
 	
 	return previous_state
 
-func _physics_process(delta: float) -> void:
-	space_state = get_world_3d().direct_space_state
-	input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
-	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
+func apply_movement(delta):
+	if current_state in [States.RUNNING, States.CROUCHING, States.WALKING]:
+		_handle_ground_physics(delta)
+	elif current_state == States.JUMPING:
+		jump()
+	elif current_state == States.FALLING:	
+		_handle_air_physics(delta)
+	elif current_state == States.WALLRUNNING:
+		_handle_wallrun_physics(delta)
+	elif current_state == States.WALLJUMPING:
+		wall_jump()
+	elif current_state == States.SLIDING:
+		_handle_slide_physics(delta)
+	elif current_state == States.LEDGEGRABBING:
+		ledge_grab()
+	elif current_state == States.INITIAL_DIVE:
+		dive()
+	elif current_state == States.DIVING:
+		_handle_dive_physics(delta)
 
-	## State Machine
-	wall_run_timer = max(wall_run_timer - delta, 0.0)
-	slide_timer = max(slide_timer - delta, 0.0)
-	ledge_timer = max(ledge_timer - delta, 0.0)
-	dive_timer = max(dive_timer - delta, 0.0)
 
+func apply_camera_movement(delta):
+	## headbob
+	if get_move_speed() == sprint_speed:
+		head_bobbing_current_intensity = head_bobbing_sprinting_intensity
+		head_bobbing_index += head_bobbing_sprinting_speed * delta
+	elif get_move_speed() == walk_speed:
+		head_bobbing_current_intensity = head_bobbing_walking_intensity
+		head_bobbing_index += head_bobbing_walking_speed * delta
+	else:
+		head_bobbing_current_intensity = head_bobbing_crouching_intensity
+		head_bobbing_index += head_bobbing_crouching_speed * delta
+
+	## camera movement
+	if !(current_state in [States.WALLRUNNING, States.LEDGEGRABBING]):
+		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
+	if !(current_state in [States.CROUCHING, States.SLIDING]):
+		camera.position.y = lerp(camera.position.y, 0.0, lerp_speed * delta)
+
+	if current_state == States.WALLRUNNING:
+		var target_pos = 0.2
+		# raycast_get_collision()
+		if left_ray:
+			camera.rotation.z = lerp(camera.rotation.z, -target_pos, delta * lerp_speed)
+		elif right_ray:
+			camera.rotation.z = lerp(camera.rotation.z, target_pos, delta * lerp_speed)
+	elif current_state == States.SLIDING:
+		camera.position.y = lerp(camera.position.y, -0.9, lerp_speed * delta * 2)
+	elif current_state == States.CROUCHING:
+		camera.position.y = lerp(camera.position.y, -0.5, lerp_speed * delta * 1.5)
+	elif current_state == States.LEDGEGRABBING:
+		camera.rotation.z = lerp(camera.rotation.z, 0.2, delta * lerp_speed * 3)
+
+	if current_state in [States.RUNNING] and input_dir: 
+		head_bobbing_vector.y = sin(head_bobbing_index)
+		head_bobbing_vector.x = sin(head_bobbing_index/2) + 0.5
+
+		camera.position.y = lerp(camera.position.y, head_bobbing_vector.y*(head_bobbing_current_intensity/2.0), delta * lerp_speed)
+		camera.position.x = lerp(camera.position.x, head_bobbing_vector.x*(head_bobbing_current_intensity), delta * lerp_speed)
+
+	if current_state != States.WALLRUNNING:
+		if Input.is_action_pressed('input_left'):
+			camera.rotation.z = lerp(camera.rotation.z, +0.1, delta * lerp_speed/4)
+		elif Input.is_action_pressed('input_right'):
+			camera.rotation.z = lerp(camera.rotation.z, -0.1, delta * lerp_speed/4)
+	
+
+func apply_collider_settings():
+	## collider setting
+	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:
+		standing_collider.disabled = false
+		crouching_collider.disabled = true
+	else:
+		standing_collider.disabled = true
+		crouching_collider.disabled = false
+
+func _apply_animations():
+	var nothing = 'nothing'
+
+func update_states():
 	match (current_state):
 		States.RUNNING:
 			if Input.is_action_just_pressed('jump'):
@@ -391,78 +460,22 @@ func _physics_process(delta: float) -> void:
 			elif raycast_get_collision() and wall_run_timer <= 0:
 				current_state = States.WALLRUNNING
 
+func _physics_process(delta: float) -> void:
+	space_state = get_world_3d().direct_space_state
+	input_dir = Input.get_vector('input_left', 'input_right', 'input_back', 'input_forward').normalized()
+	wish_dir = self.global_transform.basis * Vector3(input_dir.x, 0, -input_dir.y)
 
-	## movement
-	if current_state in [States.RUNNING, States.CROUCHING, States.WALKING]:
-		_handle_ground_physics(delta)
-	elif current_state == States.JUMPING:
-		jump()
-	elif current_state == States.FALLING:	
-		_handle_air_physics(delta)
-	elif current_state == States.WALLRUNNING:
-		_handle_wallrun_physics(delta)
-	elif current_state == States.WALLJUMPING:
-		wall_jump()
-	elif current_state == States.SLIDING:
-		_handle_slide_physics(delta)
-	elif current_state == States.LEDGEGRABBING:
-		ledge_grab()
-	elif current_state == States.INITIAL_DIVE:
-		dive()
-	elif current_state == States.DIVING:
-		_handle_dive_physics(delta)
+	## State Machine
+	update_states()
+	wall_run_timer = max(wall_run_timer - delta, 0.0)
+	slide_timer = max(slide_timer - delta, 0.0)
+	ledge_timer = max(ledge_timer - delta, 0.0)
+	dive_timer = max(dive_timer - delta, 0.0)
 
-	## headbob
-	if get_move_speed() == sprint_speed:
-		head_bobbing_current_intensity = head_bobbing_sprinting_intensity
-		head_bobbing_index += head_bobbing_sprinting_speed * delta
-	elif get_move_speed() == walk_speed:
-		head_bobbing_current_intensity = head_bobbing_walking_intensity
-		head_bobbing_index += head_bobbing_walking_speed * delta
-	else:
-		head_bobbing_current_intensity = head_bobbing_crouching_intensity
-		head_bobbing_index += head_bobbing_crouching_speed * delta
-
-	## camera movement
-	if !(current_state in [States.WALLRUNNING, States.LEDGEGRABBING]):
-		camera.rotation.z = lerp(camera.rotation.z, 0.0, lerp_speed * delta)
-	if !(current_state in [States.CROUCHING, States.SLIDING]):
-		camera.position.y = lerp(camera.position.y, 0.0, lerp_speed * delta)
-
-	if current_state == States.WALLRUNNING:
-		var target_pos = 0.2
-		# raycast_get_collision()
-		if left_ray:
-			camera.rotation.z = lerp(camera.rotation.z, -target_pos, delta * lerp_speed)
-		elif right_ray:
-			camera.rotation.z = lerp(camera.rotation.z, target_pos, delta * lerp_speed)
-	elif current_state == States.SLIDING:
-		camera.position.y = lerp(camera.position.y, -0.9, lerp_speed * delta * 2)
-	elif current_state == States.CROUCHING:
-		camera.position.y = lerp(camera.position.y, -0.5, lerp_speed * delta * 1.5)
-	elif current_state == States.LEDGEGRABBING:
-		camera.rotation.z = lerp(camera.rotation.z, 0.2, delta * lerp_speed * 3)
-
-	if current_state in [States.RUNNING] and input_dir: 
-		head_bobbing_vector.y = sin(head_bobbing_index)
-		head_bobbing_vector.x = sin(head_bobbing_index/2) + 0.5
-
-		camera.position.y = lerp(camera.position.y, head_bobbing_vector.y*(head_bobbing_current_intensity/2.0), delta * lerp_speed)
-		camera.position.x = lerp(camera.position.x, head_bobbing_vector.x*(head_bobbing_current_intensity), delta * lerp_speed)
-
-		if Input.is_action_pressed('input_left'):
-			camera.rotation.z = lerp(camera.rotation.z, +0.1, delta * lerp_speed/4)
-		elif Input.is_action_pressed('input_right'):
-			camera.rotation.z = lerp(camera.rotation.z, -0.1, delta * lerp_speed/4)
-	
-	## collider setting
-	if current_state in [States.RUNNING, States.WALLJUMPING, States.FALLING, States.WALLRUNNING, States.JUMPING]:
-		standing_collider.disabled = false
-		crouching_collider.disabled = true
-	else:
-		standing_collider.disabled = true
-		crouching_collider.disabled = false
-	
+	apply_movement(delta)
+	apply_camera_movement(delta)
+	apply_collider_settings()
+	_apply_animations()
 	## animations
 
 	move_and_slide()

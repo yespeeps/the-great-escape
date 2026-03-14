@@ -6,16 +6,16 @@
 [ext_resource type="PackedScene" uid="uid://5negh75idjb0" path="res://scenes/source_controller.tscn" id="4_7qo45"]
 [ext_resource type="Texture2D" uid="uid://cyg2snr1w5xw5" path="res://addons/func_godot/textures/default_texture.png" id="5_mdsev"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_snglc"]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mdsev"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 
-[sub_resource type="Sky" id="Sky_385i6"]
-sky_material = SubResource("ProceduralSkyMaterial_snglc")
+[sub_resource type="Sky" id="Sky_nqlp2"]
+sky_material = SubResource("ProceduralSkyMaterial_mdsev")
 
-[sub_resource type="Environment" id="Environment_qndhv"]
+[sub_resource type="Environment" id="Environment_7qo45"]
 background_mode = 2
-sky = SubResource("Sky_385i6")
+sky = SubResource("Sky_nqlp2")
 tonemap_mode = 2
 glow_enabled = true
 
@@ -86,10 +86,10 @@ points = PackedVector3Array(4.5, 3.5, -3, 4.5, 0, -3, 1.5, 3.5, -3, 1.5, 0, -3, 
 
 [node name="FirstLevel" type="Node3D" unique_id=1132004998]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=476102674]
-environment = SubResource("Environment_qndhv")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1853802290]
+environment = SubResource("Environment_7qo45")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=765405435]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2138607571]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
 shadow_enabled = true
 
